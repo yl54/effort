@@ -11,10 +11,13 @@
 
 extern crate getopts;
 
+use builtin::BuiltIn;
 use getopts::Options;
 use std::env;
 use std::io::{self, Write};
 use std::process::Command;
+
+mod builtin;
 
 struct Shell<'a> {
     cmd_prompt: &'a str,
@@ -29,6 +32,9 @@ impl <'a>Shell<'a> {
         let stdin = io::stdin();
         let mut stdout = io::stdout();
 
+        // Init the builtin here
+        let built_in: BuiltIn = BuiltIn{};
+
         loop {
             stdout.write(self.cmd_prompt.as_bytes()).unwrap();
             stdout.flush().unwrap();
@@ -41,6 +47,11 @@ impl <'a>Shell<'a> {
 
             println!("cmd_line: {}", cmd_line);
             println!("program: {}", program);
+
+            // Check if it is a builtin
+            if built_in.is_built_in(cmd_line) {
+                println!("BuiltIn command spotted from: {}", cmd_line);
+            }
 
             match program {
                 ""      =>  { continue; }
@@ -97,7 +108,6 @@ fn main() {
     }
 }
 
-
 // Options to add internal programs
 // - add to the match statement
 // - add some logic in run_cmdline
@@ -105,18 +115,19 @@ fn main() {
 // - (stolen answer) add a struct to handle logic and have builtins vs everything else
 //   - command is always the first string
 //   - decent way to address issues like: "need more complex logic + options"
-//   - if its overkill, can always revert to using a function again
+//   - if its overkill, can always revert to using a simple function again
 // - start with handling one internal command
 
 // Builtin struct
 // - it can have a list of &str which are known to be builtins
 // - it can redirect to specific cmd
-// - define a trait called cmd_run
+// - define a trait called cmd_type
 //   - it will have a run command
+//   - it will have a parse_args command
 
 // cmd struct
 // - it will have fields which represent options
-// - it will implements cmd_run
+// - it will implement cmd_run
 
 // - q: should we worry about mixing cmd + normal bash commands?
 //   - maybe worry as next step
