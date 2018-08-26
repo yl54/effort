@@ -27,12 +27,22 @@ fn extract_path(request: &str) -> &str {
     // Split the string by new line
     let lines: Vec<&str> = request.split("\n").collect();
 
+    // Check if the vec is valid.
+    if lines.len() <= 0 {
+        return "";
+    }
+
     // Take the first string
     let line: &str = lines[0];
 
     // Split the string by " "
     let spl: Vec<&str> = line.split(" ").collect();
     println!("{:?}", spl);
+
+    // Check if the vec is valid.
+    if spl.len() <= 0 {
+        return "";
+    }
 
     // Check the length
     if spl.len() != 3 {
