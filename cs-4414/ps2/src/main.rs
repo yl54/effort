@@ -39,8 +39,6 @@ impl <'a>Shell<'a> {
             let cmd_line = line.trim();
             let program = cmd_line.splitn(1, " ").nth(0).expect("no program");
 
-
-
             println!("cmd_line: {}", cmd_line);
             println!("program: {}", program);
 
@@ -108,7 +106,8 @@ fn main() {
 //   - command is always the first string
 //   - decent way to address issues like: "need more complex logic + options"
 //   - if its overkill, can always revert to using a function again
-// - start with 
+// - start with handling one internal command
+
 // Builtin struct
 // - it can have a list of &str which are known to be builtins
 // - it can redirect to specific cmd
