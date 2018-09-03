@@ -3,9 +3,6 @@
 use cd::Cd;
 use std::string::String;
 
-#[allow(dead_code)] 
-#[allow(unused_imports)]
-
 // mod cd;
 
 // Builtin struct

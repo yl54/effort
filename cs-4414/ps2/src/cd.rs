@@ -6,9 +6,6 @@ use std::env;
 use std::path::{Path};
 use std::string::String;
 
-#[allow(dead_code)] 
-#[allow(unused_imports)]
-
 // CD struct
 pub struct Cd {
     // folder destination
