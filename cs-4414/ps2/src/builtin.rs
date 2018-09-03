@@ -1,6 +1,12 @@
 // File to deal with builtin handler
 
-use std::vec::Vec;
+use cd::Cd;
+use std::string::String;
+
+#[allow(dead_code)] 
+#[allow(unused_imports)]
+
+// mod cd;
 
 // Builtin struct
 pub struct BuiltIn {
@@ -14,35 +20,19 @@ static CMD_LIST: [&'static str; 2] = [
     "history"
 ];
 
-// cmd trait definition
-// - parse args
-// - run
-trait InternalCommand {
-    // Function to parse arguments.
-    // Return true if parsing is successful
-    fn parse_args(&self, &str) -> bool;
-
-    // Function to run the command.
-    // Return true if command successfully runs.
-    fn run(&self) -> bool; 
-}
-
 impl BuiltIn {
     // Function to check if its a builtin or not
-    pub fn is_built_in(&self, full_input: &str) -> bool{
-        // Split the string by " "
-        let spl: Vec<&str> = full_input.split(" ").collect();
-
-        // Check if the array actually exists.
-        if spl.len() <= 0 {
-            return false;
-        }
-
-        // Extract the first str
-        let input: &str = spl[0];
-
+    pub fn is_built_in(&self, input: &str) -> bool {
         // return the result of contains
         return self.contains(input);
+    }
+
+    // Function to return a cmd.
+    pub fn get_built_in_cmd(&self, input: &str) -> impl BuiltInCommand {
+        match input {
+            "cd" => Cd::new(input.to_string()),
+            _    => Cd::new(input.to_string()),
+        }
     }
 
     // Function to check if the list contains the str
@@ -58,4 +48,17 @@ impl BuiltIn {
         // All have been searched through. Return false
         return false;
     }
+}
+
+// cmd trait definition
+// - parse args
+// - run
+pub trait BuiltInCommand {
+    fn new(String) -> Self;
+
+    fn print(&self);
+
+    // Function to run the command.
+    // Return true if command successfully runs.
+    fn run(&self) -> bool; 
 }

@@ -9,15 +9,22 @@
 // Version 0.4
 //
 
+#![allow(dead_code)] 
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(unreachable_patterns)]
+
 extern crate getopts;
 
-use builtin::BuiltIn;
+use builtin::{BuiltIn, BuiltInCommand};
 use getopts::Options;
 use std::env;
+use std::fmt::Display;
 use std::io::{self, Write};
 use std::process::Command;
 
-mod builtin;
+pub mod builtin;
+pub mod cd;
 
 struct Shell<'a> {
     cmd_prompt: &'a str,
@@ -44,24 +51,51 @@ impl <'a>Shell<'a> {
             stdin.read_line(&mut line).unwrap();
             let cmd_line = line.trim();
             let program = cmd_line.splitn(1, " ").nth(0).expect("no program");
-
+   
             println!("cmd_line: {}", cmd_line);
             println!("program: {}", program);
-
-            // Check if it is a builtin
-            if built_in.is_built_in(cmd_line) {
-                println!("BuiltIn command spotted from: {}", cmd_line);
-            }
 
             match program {
                 ""      =>  { continue; }
                 "exit"  =>  { return; }
-                _       =>  { self.run_cmdline(cmd_line); }
+                _       =>  { self.run_cmd(&built_in, cmd_line) }
             }
         }
     }
 
-    fn run_cmdline(&self, cmd_line: &str) {
+    fn run_cmd(&self, built_in: &BuiltIn, cmd_line: &str) {
+        // Split the string by " "
+        let spl: Vec<&str> = cmd_line.split(" ").collect();
+
+        // Check if the array actually exists.
+        if spl.len() <= 0 {
+            println!("Input was not parsed into parts: {}", cmd_line);
+            return;
+        }
+
+        // Extract the first str
+        let input: &str = spl[0];
+
+        // Check if it is a builtin
+        if built_in.is_built_in(input) {
+            println!("BuiltIn command spotted from: {}", cmd_line);
+
+            // Get the builtin command
+            let built_in_cmd = built_in.get_built_in_cmd(cmd_line);
+            built_in_cmd.print();
+            let success = built_in_cmd.run();
+
+            // Run the builtin command
+            match success {
+                true => { println!("Successful builtin command."); }
+                false => { println!("Failed builtin command."); }
+            }
+        } else {
+            self.run_custom_cmdline(cmd_line);
+        }
+    }
+
+    fn run_custom_cmdline(&self, cmd_line: &str) {
         let argv: Vec<&str> = cmd_line.split(' ').filter_map(|x| {
             if x == "" {
                 None
@@ -71,12 +105,12 @@ impl <'a>Shell<'a> {
         }).collect();
 
         match argv.first() {
-            Some(&program) => self.run_cmd(program, &argv[1..]),
+            Some(&program) => self.run_custom_cmd(program, &argv[1..]),
             None => (),
         };
     }
 
-    fn run_cmd(&self, program: &str, argv: &[&str]) {
+    fn run_custom_cmd(&self, program: &str, argv: &[&str]) {
         if self.cmd_exists(program) {
             io::stdout().write(&Command::new(program).args(argv).output().unwrap().stdout).unwrap();
         } else {
@@ -103,10 +137,12 @@ fn main() {
     let opt_cmd_line = get_cmdline_from_args();
 
     match opt_cmd_line {
-        Some(cmd_line) => Shell::new("").run_cmdline(&cmd_line),
+        Some(cmd_line) => Shell::new("").run_custom_cmdline(&cmd_line),
         None           => Shell::new("gash > ").run(),
     }
 }
+
+
 
 // Options to add internal programs
 // - add to the match statement
