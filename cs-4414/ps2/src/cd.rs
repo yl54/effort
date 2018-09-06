@@ -15,11 +15,8 @@ pub struct Cd {
     valid: bool,
 }
 
-// Implement cmd trait
-// NOTE: This is plagued by lifetime of references.
-// How do we want to initialize stuff?
-impl BuiltInCommand for Cd { 
-    fn new(input: String) -> Self {
+impl Cd {
+    pub fn new(input: String) -> Self {
         let spl: Vec<&str> = input.split(" ").collect();
 
         println!("spl: {:?}", spl);
@@ -36,15 +33,17 @@ impl BuiltInCommand for Cd {
             valid: success,
         };
     }
+}
 
+// Implement cmd trait
+// NOTE: This is plagued by lifetime of references.
+// How do we want to initialize stuff?
+impl BuiltInCommand for Cd { 
     fn print(&self) {
         println!("{}", self);
     }
 
     fn run(&self) -> bool {
-        // Create a new Path object.
-        // let path: &Path = Path::new(self.dest);
-
         // Set the current working directory.
         return env::set_current_dir(&self.dest).is_ok();
     }
@@ -55,7 +54,3 @@ impl Display for Cd {
         write!(f, "Cd:\n dest: {}\nvalid: {}\n", self.dest, self.valid)
     }
 }
-
-// Exercise: 
-// - copy/paste random bits of rust code
-// - identify scopes + ownership by manual looking

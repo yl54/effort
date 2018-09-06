@@ -1,12 +1,16 @@
 // File to deal with builtin handler
 
 use cd::Cd;
+use history::History;
 use std::string::String;
 
 // mod cd;
 
 // Builtin struct
 pub struct BuiltIn {
+    // Lesson: you don't need to make each field mutable.
+    //         you have to make the entire struct mutable.
+    pub history: Vec<String>,
 }
 
 // List of strings that represent builtin
@@ -25,11 +29,25 @@ impl BuiltIn {
     }
 
     // Function to return a cmd.
-    pub fn get_built_in_cmd(&self, input: &str) -> impl BuiltInCommand {
-        match input {
-            "cd" => Cd::new(input.to_string()),
-            _    => Cd::new(input.to_string()),
+    // Return if the run was successful
+    pub fn run(&self, cmd_name: &str, input: &str) -> bool {
+        let mut success: bool = false;
+
+        match cmd_name {
+            "cd" => {
+                let cmd: Cd = Cd::new(input.to_string());
+                success = cmd.run();
+            },
+            "history" => {
+                let cmd: History = History::new(&self.history);
+                success = cmd.run();
+            },
+            _ => {
+                println!("No cmd actually exists for this one.");
+            }
         }
+
+        return success;
     }
 
     // Function to check if the list contains the str
@@ -45,14 +63,17 @@ impl BuiltIn {
         // All have been searched through. Return false
         return false;
     }
+
+    // Function to record history.
+    pub fn record_cmd(&mut self, s: String) {
+        self.history.push(s);
+    }
 }
 
 // cmd trait definition
 // - parse args
 // - run
 pub trait BuiltInCommand {
-    fn new(String) -> Self;
-
     fn print(&self);
 
     // Function to run the command.

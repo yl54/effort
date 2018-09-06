@@ -13,6 +13,7 @@
 #![allow(unused_imports)]
 #![allow(unused_variables)]
 #![allow(unreachable_patterns)]
+#![allow(unused_assignments)]
 
 extern crate getopts;
 
@@ -22,9 +23,11 @@ use std::env;
 use std::fmt::Display;
 use std::io::{self, Write};
 use std::process::Command;
+use std::vec::Vec;
 
 pub mod builtin;
 pub mod cd;
+pub mod history;
 
 struct Shell<'a> {
     cmd_prompt: &'a str,
@@ -40,7 +43,9 @@ impl <'a>Shell<'a> {
         let mut stdout = io::stdout();
 
         // Init the builtin here
-        let built_in: BuiltIn = BuiltIn{};
+        let mut built_in: BuiltIn = BuiltIn{
+            history: Vec::new(),
+        };
 
         loop {
             stdout.write(self.cmd_prompt.as_bytes()).unwrap();
@@ -58,12 +63,12 @@ impl <'a>Shell<'a> {
             match program {
                 ""      =>  { continue; }
                 "exit"  =>  { return; }
-                _       =>  { self.run_cmd(&built_in, cmd_line) }
+                _       =>  { self.run_cmd(&mut built_in, cmd_line) }
             }
         }
     }
 
-    fn run_cmd(&self, built_in: &BuiltIn, cmd_line: &str) {
+    fn run_cmd(&self, built_in: &mut BuiltIn, cmd_line: &str) {
         // Split the string by " "
         let spl: Vec<&str> = cmd_line.split(" ").collect();
 
@@ -80,12 +85,8 @@ impl <'a>Shell<'a> {
         if built_in.is_built_in(input) {
             println!("BuiltIn command spotted from: {}", cmd_line);
 
-            // Get the builtin command
-            let built_in_cmd = built_in.get_built_in_cmd(cmd_line);
-            built_in_cmd.print();
-            let success = built_in_cmd.run();
-
             // Run the builtin command
+            let success: bool = built_in.run(input, cmd_line);
             match success {
                 true => { println!("Successful builtin command."); }
                 false => { println!("Failed builtin command."); }
@@ -93,6 +94,8 @@ impl <'a>Shell<'a> {
         } else {
             self.run_custom_cmdline(cmd_line);
         }
+
+        built_in.record_cmd(cmd_line.to_string());
     }
 
     fn run_custom_cmdline(&self, cmd_line: &str) {
