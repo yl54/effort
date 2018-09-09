@@ -19,9 +19,6 @@ use std::sync::{Mutex, Arc};
 use std::thread;
 use std::vec::Vec;
 
-// A static list of accepted paths of files to serve.
-// const ACCPATHS: [&'static str; 3] = ["original", "great", "trash"];
-
 // Function to extract the path of the request
 fn extract_path(request: &str) -> &str {
     // Split the string by new line
@@ -186,11 +183,3 @@ fn main() {
 
     drop(listener);
 }
-
-
-// Enhancement steps
-// - get a list of acceptable paths
-// - get the ip4, port, socketaddr, ip4v
-// - make a function to handle the request, pick a page
-// - make the various pages
-// - make a function to check the path of the request
