@@ -10,21 +10,20 @@ use std::vec::Vec;
 
 pub struct Shell<'a> {
     cmd_prompt: &'a str,
+    built_in:   BuiltIn,
 }
 
 impl <'a>Shell<'a> {
     pub fn new(prompt_str: &'a str) -> Shell<'a> {
-        Shell { cmd_prompt: prompt_str }
+        Shell { 
+            cmd_prompt: prompt_str,
+            built_in:   BuiltIn { history: Vec::new() },
+        }
     }
 
-    pub fn run(&self) {
+    pub fn run(&mut self) {
         let stdin = io::stdin();
         let mut stdout = io::stdout();
-
-        // Init the builtin here
-        let mut built_in: BuiltIn = BuiltIn{
-            history: Vec::new(),
-        };
 
         loop {
             stdout.write(self.cmd_prompt.as_bytes()).unwrap();
@@ -42,7 +41,7 @@ impl <'a>Shell<'a> {
             match program {
                 ""      =>  { continue; }
                 "exit"  =>  { return; }
-                _       =>  { self.run_cmd(&mut built_in, cmd_line) }
+                _       =>  { self.run_cmd(cmd_line) }
             }
         }
     }
@@ -51,7 +50,7 @@ impl <'a>Shell<'a> {
     // - it can split into multiple strings
     // - to run as a separate thread or on main process
 
-    fn run_cmd(&self, built_in: &mut BuiltIn, cmd_line: &str) {
+    fn run_cmd(&mut self, cmd_line: &str) {
         // Split the string by " "
         let spl: Vec<&str> = cmd_line.split(" ").collect();
 
@@ -65,11 +64,11 @@ impl <'a>Shell<'a> {
         let input: &str = spl[0];
 
         // Check if it is a builtin
-        if built_in.is_built_in(input) {
+        if self.built_in.is_built_in(input) {
             println!("BuiltIn command spotted from: {}", cmd_line);
 
             // Run the builtin command
-            let success: bool = built_in.run(input, cmd_line);
+            let success: bool = self.built_in.run(input, cmd_line);
             match success {
                 true => { println!("Successful builtin command."); }
                 false => { println!("Failed builtin command."); }
@@ -78,7 +77,7 @@ impl <'a>Shell<'a> {
             self.run_custom_cmdline(cmd_line);
         }
 
-        built_in.record_cmd(cmd_line.to_string());
+        self.built_in.record_cmd(cmd_line.to_string());
     }
 
     pub fn run_custom_cmdline(&self, cmd_line: &str) {
