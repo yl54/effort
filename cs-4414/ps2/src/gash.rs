@@ -41,7 +41,7 @@ impl <'a>Shell<'a> {
             match program {
                 ""      =>  { continue; }
                 "exit"  =>  { return; }
-                _       =>  { self.run_cmd(cmd_line) }
+                _       =>  { self.validate_cmd(cmd_line) }
             }
         }
     }
@@ -49,8 +49,7 @@ impl <'a>Shell<'a> {
     // Maybe I need a validate_cmd to check if:
     // - it can split into multiple strings
     // - to run as a separate thread or on main process
-
-    fn run_cmd(&mut self, cmd_line: &str) {
+    fn validate_cmd(&mut self, cmd_line: &str) {
         // Split the string by " "
         let spl: Vec<&str> = cmd_line.split(" ").collect();
 
@@ -60,15 +59,19 @@ impl <'a>Shell<'a> {
             return;
         }
 
-        // Extract the first str
-        let input: &str = spl[0];
+        self.run_cmd(spl[0], cmd_line);
 
+        self.built_in.record_cmd(cmd_line.to_string());
+
+    }
+
+    fn run_cmd(&mut self, cmd_name: &str, cmd_line: &str) {
         // Check if it is a builtin
-        if self.built_in.is_built_in(input) {
+        if self.built_in.is_built_in(cmd_name) {
             println!("BuiltIn command spotted from: {}", cmd_line);
 
             // Run the builtin command
-            let success: bool = self.built_in.run(input, cmd_line);
+            let success: bool = self.built_in.run(cmd_name, cmd_line);
             match success {
                 true => { println!("Successful builtin command."); }
                 false => { println!("Failed builtin command."); }
@@ -76,8 +79,6 @@ impl <'a>Shell<'a> {
         } else {
             self.run_custom_cmdline(cmd_line);
         }
-
-        self.built_in.record_cmd(cmd_line.to_string());
     }
 
     pub fn run_custom_cmdline(&self, cmd_line: &str) {
@@ -90,17 +91,17 @@ impl <'a>Shell<'a> {
         }).collect();
 
         match argv.first() {
-            Some(&program) => self.run_custom_cmd(program, &argv[1..]),
+            // Some(&program) => self.run_custom_cmd(program, &argv[1..]),
+            Some(&program) => {
+                if self.cmd_exists(program) {
+                    io::stdout().write(&Command::new(program).args(&argv[1..]).output().unwrap().stdout).unwrap();
+                } else {
+                    println!("{}: command not found", program);
+                }
+            },
+
             None => (),
         };
-    }
-
-    fn run_custom_cmd(&self, program: &str, argv: &[&str]) {
-        if self.cmd_exists(program) {
-            io::stdout().write(&Command::new(program).args(argv).output().unwrap().stdout).unwrap();
-        } else {
-            println!("{}: command not found", program);
-        }
     }
 
     fn cmd_exists(&self, cmd_path: &str) -> bool {
