@@ -4,32 +4,24 @@ use cd::Cd;
 use history::History;
 use std::string::String;
 
-// mod cd;
-
-// Builtin struct
 pub struct BuiltIn {
-    // Lesson: you don't need to make each field mutable.
-    //         you have to make the entire struct mutable.
     pub history: Vec<String>,
 }
 
-// List of strings that represent builtin
-// Make this a simple list first
-// Maybe this is a hashmap or something later
+// CMD_LIST is a list of strings that are built in commands.
 static CMD_LIST: [&'static str; 2] = [
     "cd",
     "history"
 ];
 
 impl BuiltIn {
-    // Function to check if its a builtin or not
+    // is_built_in checks if the command is built in.
     pub fn is_built_in(&self, input: &str) -> bool {
         // return the result of contains
         return self.contains(input);
     }
 
-    // Function to return a cmd.
-    // Return if the run was successful
+    // run runs the built in command.
     pub fn run(&self, cmd_name: &str, input: &str) -> bool {
         let mut success: bool = false;
 
@@ -50,33 +42,24 @@ impl BuiltIn {
         return success;
     }
 
-    // Function to check if the list contains the str
+    // record_cmd records the command in the history list.
+    pub fn record_cmd(&mut self, s: String) {
+        self.history.push(s);
+    }
+
+    // contains checks the built in list to see if it is a built in command.
     fn contains(&self, input: &str) -> bool {
-        // Loop through each of the string
         for i in 0..CMD_LIST.len() {
-            // If its known, return true;
             if input == CMD_LIST[i] {
                 return true;
             }
         }
 
-        // All have been searched through. Return false
         return false;
-    }
-
-    // Function to record history.
-    pub fn record_cmd(&mut self, s: String) {
-        self.history.push(s);
     }
 }
 
-// cmd trait definition
-// - parse args
-// - run
 pub trait BuiltInCommand {
     fn print(&self);
-
-    // Function to run the command.
-    // Return true if command successfully runs.
     fn run(&self) -> bool; 
 }
