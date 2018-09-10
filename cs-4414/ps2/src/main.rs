@@ -98,8 +98,20 @@ fn main() {
 // - useful to learn about unsafe rust at some point
 // - potential solutions
 //   - just spawn a thread whenever it shows up
+//     - simple solution
 //   - keep a threadpool ready
+//     - harder solution
 //   - are there other things besides threads?
+// - probably want to have background processes be async
+// - tasks
+//   - pieces of work that run independently
+//   - does not require an entire os thread
+//   - The key idea is that, any time a task would block waiting for some external 
+//     event to occur, it instead returns control to the thread that was executing 
+//     it (the "executor"), which can make progress on another task instead.
+//   - goal: make it possible to run any number of tasks cooperatively on a single os thread
+//   - use the most simple data structures that you can
+// 
 
 // Pipes
 // - split strings via |
