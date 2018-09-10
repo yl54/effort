@@ -19,7 +19,7 @@ use std::sync::{Mutex, Arc};
 use std::thread;
 use std::vec::Vec;
 
-// Function to extract the path of the request
+// extract_path extracts the path from a HTTP POST request.
 fn extract_path(request: &str) -> &str {
     // Split the string by new line
     let lines: Vec<&str> = request.split("\n").collect();
@@ -56,22 +56,7 @@ fn extract_path(request: &str) -> &str {
     return part;
 }
 
-/*
-// Function to handle a request.
-fn handle_request(path: &str) -> String {
-    // Pick the page based off of the request.
-    let html_file_path: &str = select_response_page(path);
-
-    // Create the full http response based off of the page
-    let html_file_contents: String = get_response_page(html_file_path);
-
-    // Return the string of the http response
-    return format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n{}\r\n", html_file_contents);
-}
-*/
-
-// Function to handle a request.
-// Pass in the stream.
+// handle_request reads the path and gives a response.
 fn handle_request(path: &str, stream: &mut TcpStream) {
     // Pick the page based off of the request.
     let html_file_path: &str = select_response_page(path);
@@ -88,22 +73,7 @@ fn handle_request(path: &str, stream: &mut TcpStream) {
     stream.write(response.as_bytes()).unwrap();
 }
 
-// Function to pick a page.
-fn select_response_page(path: &str) -> &str {
-    // Do a switch statement.
-    match path {
-        // `original` case
-        "original" => "files/original.html",
-        // `great` case
-        "great" => "files/great.html",
-        // `trash` case
-        "trash" => "files/trash.html",
-        // default case
-        _ => "",
-    }
-}
-
-// Function to get the response page html.
+// get_response_page attempts to get the contents of the page.
 fn get_response_page(file_path: &str) -> String {
     // Attempt to open the file.
     let mut f = File::open(file_path).expect("file not found");
@@ -116,6 +86,21 @@ fn get_response_page(file_path: &str) -> String {
 
     // Return the string object.
     return contents;
+}
+
+// select_response_page picks a page depending on the path.
+fn select_response_page(path: &str) -> &str {
+    // Do a switch statement.
+    match path {
+        // `original` case
+        "original" => "files/original.html",
+        // `great` case
+        "great" => "files/great.html",
+        // `trash` case
+        "trash" => "files/trash.html",
+        // default case
+        _ => "",
+    }
 }
 
 fn main() {
