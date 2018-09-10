@@ -8,9 +8,6 @@ use std::string::String;
 
 // CD struct
 pub struct Cd {
-    // folder destination
-    // static is not the correct lifetime for returning a dynamic struct
-    //   where we dont know what string will be used at compile time
     dest: String,
     valid: bool,
 }
@@ -35,9 +32,6 @@ impl Cd {
     }
 }
 
-// Implement cmd trait
-// NOTE: This is plagued by lifetime of references.
-// How do we want to initialize stuff?
 impl BuiltInCommand for Cd { 
     fn print(&self) {
         println!("{}", self);
