@@ -88,7 +88,6 @@ impl <'a>Shell<'a> {
         };
 
         let spl: Vec<&str> = cmd_line.split(" ").collect();
-
         let len = spl.len();
 
         // Check if the array actually exists.
