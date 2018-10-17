@@ -14,5 +14,7 @@ pub mod one_gate;
 
 // Main function
 fn main() {
-    one_gate::transform_example_simple();
+    // Try a simple solution.
+    let tc: one_gate::TransformComplexity = one_gate::TransformComplexity::Simple;
+    one_gate::transform_example(tc);
 }
