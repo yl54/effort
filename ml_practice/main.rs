@@ -15,6 +15,6 @@ pub mod one_gate;
 // Main function
 fn main() {
     // Try a simple solution.
-    let tc: one_gate::TransformComplexity = one_gate::TransformComplexity::Random;
+    let tc: one_gate::TransformComplexity = one_gate::TransformComplexity::AnalyticGradient;
     one_gate::transform_example(tc);
 }
