@@ -107,6 +107,9 @@ fn process_numerical_gradient(i: f32, j: f32) -> f32 {
 
 // A function to do analytic gradient analysis
 // For this particular transformation, the derivative happens to be the other value
+// Direct expression = fewer computations
+// In the real world, you compute the analytic gradient to figure things out so that
+//   your performance does not suck.
 fn process_analytic_gradient(i: f32, j: f32) -> f32 {
     // Get the initial output
     let output: f32 = i * j;
