@@ -11,10 +11,11 @@
 #![allow(unused_assignments)]
 
 pub mod one_gate;
+pub mod two_gate;
 
 // Main function
 fn main() {
     // Try a simple solution.
-    let tc: one_gate::TransformComplexity = one_gate::TransformComplexity::AnalyticGradient;
-    one_gate::transform_example(tc);
+    let tc: two_gate::TransformComplexity = two_gate::TransformComplexity::AnalyticGradient;
+    two_gate::transform_example(tc);
 }
