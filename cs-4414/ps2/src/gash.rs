@@ -61,18 +61,20 @@ impl <'a>Shell<'a> {
                 GashAction::Continue            => { continue; }
                 GashAction::Stop                => { return; }
                 GashAction::RunSync             => { 
-                    self.run_cmd(spl[0], program);
+                    self.run_custom_cmdline(program);
                 }
                 GashAction::RunAsync            => { 
-                    self.run_cmd(spl[0], program);
+                    self.run_custom_cmdline(program);
                 }
-                GashAction::RunSyncBuiltIn      => { return; }
+                GashAction::RunSyncBuiltIn      => { 
+                    return; 
+                }
                 GashAction::RunAsyncBuiltIn     => { return; }
             }
         }
     }
 
-    // check_cmd checks the input and decides action to take.
+    // check_cmd checks the input and determines the action to take.
     fn check_cmd(&mut self, cmd_line: &str) -> GashAction {
         match cmd_line {
             ""      =>  { return GashAction::Continue; }
@@ -112,23 +114,6 @@ impl <'a>Shell<'a> {
     // path_cmd_exists checks if the command exists on PATH.
     fn path_cmd_exists(&self, cmd_path: &str) -> bool {
         Command::new("which").arg(cmd_path).status().unwrap().success()
-    }
-
-    // run_cmd runs the command.
-    fn run_cmd(&self, cmd_name: &str, cmd_line: &str) {
-        // Check if it is a builtin
-        if self.built_in.is_built_in(cmd_name) {
-            println!("BuiltIn command spotted from: {}", cmd_line);
-
-            // Run the builtin command
-            let success: bool = self.built_in.run(cmd_name, cmd_line);
-            match success {
-                true => { println!("Successful builtin command."); }
-                false => { println!("Failed builtin command."); }
-            }
-        } else {
-            self.run_custom_cmdline(cmd_line);
-        }
     }
 
     // run_custom_cmdline runs the custom command.
