@@ -1,6 +1,6 @@
 // This file has the implementation of the gash shell.
 
-use builtin::{BuiltIn, BuiltInCommand};
+use builtin::BuiltIn;
 use getopts::Options;
 use std::env;
 use std::fmt::Display;

@@ -1,6 +1,5 @@
 // File to handle the `cd` command
 
-use builtin::BuiltInCommand;
 use std::fmt::{Display, Formatter, Result};
 use std::env;
 use std::path::{Path};

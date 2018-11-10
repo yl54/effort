@@ -56,8 +56,3 @@ impl BuiltIn {
         return false;
     }
 }
-
-pub trait BuiltInCommand {
-    fn print(&self);
-    fn run(&self) -> bool; 
-}
