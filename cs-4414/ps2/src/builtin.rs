@@ -1,6 +1,6 @@
 // File to deal with builtin handler
 
-use cd::Cd;
+use cd;
 use history::History;
 use std::string::String;
 
@@ -27,8 +27,7 @@ impl BuiltIn {
 
         match cmd_name {
             "cd" => {
-                let cmd: Cd = Cd::new(input.to_string());
-                success = cmd.run();
+                success = cd::run(input);
             },
             "history" => {
                 let cmd: History = History::new(&self.history);
