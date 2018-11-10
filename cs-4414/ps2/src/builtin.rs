@@ -1,7 +1,7 @@
 // File to deal with builtin handler
 
 use cd;
-use history::History;
+use history;
 use std::string::String;
 
 pub struct BuiltIn {
@@ -30,8 +30,7 @@ impl BuiltIn {
                 success = cd::run(input);
             },
             "history" => {
-                let cmd: History = History::new(&self.history);
-                success = cmd.run();
+                success = history::run(&self.history);
             },
             _ => {
                 println!("No cmd actually exists for this one.");

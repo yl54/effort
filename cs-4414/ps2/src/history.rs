@@ -42,3 +42,11 @@ impl<'a> Display for History<'a> {
         write!(f, "History")
     }
 }
+
+pub fn run(history: &Vec<String>) -> bool {
+    for record in history {
+        println!("{}", record);
+    }
+
+    return true;
+}
