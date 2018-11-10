@@ -9,5 +9,5 @@ pub fn run(history: &Vec<String>) -> bool {
         println!("{}", record);
     }
 
-    return true;
+    return true; 
 }
