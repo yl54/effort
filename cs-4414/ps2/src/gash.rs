@@ -15,13 +15,13 @@ enum GashAction {
     Stop,
     RunSync,
     RunAsync,
+    RunSyncBuiltIn,
+    RunAsyncBuiltIn,
 }
 
 pub struct Shell<'a> {
     cmd_prompt: &'a str,
     built_in:   BuiltIn,
-    // Add a cmd list for spawned commands: 1
-    // Add a threadpool here: 2
 }
 
 impl <'a>Shell<'a> {
@@ -58,24 +58,17 @@ impl <'a>Shell<'a> {
 
             // Check how the input should be handled.
             match self.check_cmd(program) {
-                GashAction::Continue => { continue; }
-                GashAction::Stop     => { return; }
-                GashAction::RunSync  => { 
+                GashAction::Continue            => { continue; }
+                GashAction::Stop                => { return; }
+                GashAction::RunSync             => { 
                     self.run_cmd(spl[0], program);
                 }
-                GashAction::RunAsync => { 
-                    // Push a copy of the string to a master list of strings
-
-                    // Make a thread
-
+                GashAction::RunAsync            => { 
                     self.run_cmd(spl[0], program);
                 }
+                GashAction::RunSyncBuiltIn      => { return; }
+                GashAction::RunAsyncBuiltIn     => { return; }
             }
-
-            // 1: if it needs background process:
-            //    - add to spawned command list
-            //    - spawn a thread to run it
-            // 2: use a threadpool instead
         }
     }
 
@@ -100,6 +93,14 @@ impl <'a>Shell<'a> {
         if !self.built_in.is_built_in(spl[0]) && !self.path_cmd_exists(cmd_line) {
             println!("Input was not a built in or on PATH: {}", cmd_line);
             return GashAction::Continue;
+        }
+
+        // Check if its a built in.
+        if self.built_in.is_built_in(spl[0]) {
+            match spl[len - 1] {
+                "&" => { return GashAction::RunAsyncBuiltIn; }
+                _ => { return GashAction::RunSyncBuiltIn; }
+            }
         }
 
         match spl[len - 1] {
