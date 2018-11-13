@@ -9,7 +9,7 @@ use std::process::Command;
 use std::thread;
 use std::vec::Vec;
 
-// Add a list of Gash actions: 1
+// GashAction describes what to do per input.
 enum GashAction {
     Continue,
     Stop,
@@ -60,15 +60,9 @@ impl <'a>Shell<'a> {
             match self.check_cmd(program) {
                 GashAction::Continue            => { continue; }
                 GashAction::Stop                => { return; }
-                GashAction::RunSync             => { 
-                    self.run_custom_cmdline(program);
-                }
-                GashAction::RunAsync            => { 
-                    self.run_custom_cmdline(program);
-                }
-                GashAction::RunSyncBuiltIn      => { 
-                    return; 
-                }
+                GashAction::RunSync             => { self.run_custom_cmdline(program); }
+                GashAction::RunAsync            => { self.run_custom_cmdline(program); }
+                GashAction::RunSyncBuiltIn      => { return; }
                 GashAction::RunAsyncBuiltIn     => { return; }
             }
         }
