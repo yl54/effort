@@ -29,20 +29,21 @@ pub struct Shell<'a> {
     cmd_prompt: &'a str,
 
     // TODO: Make history an object here
-    history: Vec<String>,
+    history_list: Vec<String>,
 
     // TODO: Make builtin a set of functions rather than an object.
     //       Or make it a part of the shell
     built_in:   BuiltIn,
 
    // TODO: Add a mpsc here to send/recieve asynchronous stuff
+   //       This will serve as the messages that are shown on the shell prompt
 }
 
 impl <'a>Shell<'a> {
     pub fn new(prompt_str: &'a str) -> Shell<'a> {
         Shell { 
             cmd_prompt: prompt_str,
-            history:    vec![],
+            history_list:    vec![],
             built_in:   BuiltIn { history: Vec::new() },           
         }
     }
@@ -65,7 +66,7 @@ impl <'a>Shell<'a> {
             // This provides the shell a dedicated copy that is not shared with commands. 
             // Copied from fletcher
             let historical_copy = line.clone();
-            self.history.push(historical_copy.to_string());
+            self.history_list.push(historical_copy.to_string());
 
             // TODO: Figure out what `program` does.
             let cmd_line = line.trim();
@@ -145,6 +146,16 @@ impl <'a>Shell<'a> {
         }
 
         return false;
+    }    
+
+    // TODO: Add builtin stuff here
+    // run runs the built in command.
+    fn run_built_in(&self, cmd_name: &str, input: &str) {
+        match cmd_name {
+            "cd" => self.cd(input),
+            "history" => self.history(),
+            _ => { println!("No cmd actually exists for this one.");}
+        }
     }
 
     // run_custom_cmd runs the custom command passed in.
@@ -158,7 +169,35 @@ impl <'a>Shell<'a> {
         };
     }
 
-    // TODO: Add builtin stuff here
+    fn cd(&self, input: &str) {
+        let spl: Vec<&str> = input.split(" ").collect();
+
+        println!("spl: {:?}", spl);
+
+        // Check the arg parameters and if they are useful.
+        let (att_dest, success) = match spl.len() {
+            0 => { ("", false) },
+            1 => { ("", true) },
+            2 => { (spl[1], true) },
+            _ => { ("", false) },      
+        };
+
+        if !success {
+            // TODO: Add something
+        }
+
+        env::set_current_dir(att_dest).is_ok();
+    }
+
+    fn history(&self) {
+        // Clone each history value dedicated for letting the println function borrow it.
+        // Stolen from fletcher
+        let mut results = vec![];
+        for history_record in &self.history_list {
+            results.push(history_record.clone());
+        }
+        println!("{}", format!("{:#?}", results));    
+    }
 
     // TODO: Add an async command here
 }
