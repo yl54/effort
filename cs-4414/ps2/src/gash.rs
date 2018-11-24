@@ -1,6 +1,5 @@
 // This file has the implementation of the gash shell.
 
-use builtin::BuiltIn;
 use getopts::Options;
 use std::env;
 use std::fmt::Display;
@@ -31,10 +30,6 @@ pub struct Shell<'a> {
     // TODO: Make history an object here
     history_list: Vec<String>,
 
-    // TODO: Make builtin a set of functions rather than an object.
-    //       Or make it a part of the shell
-    built_in:   BuiltIn,
-
    // TODO: Add a mpsc here to send/recieve asynchronous stuff
    //       This will serve as the messages that are shown on the shell prompt
 }
@@ -44,7 +39,6 @@ impl <'a>Shell<'a> {
         Shell { 
             cmd_prompt: prompt_str,
             history_list:    vec![],
-            built_in:   BuiltIn { history: Vec::new() },           
         }
     }
 
@@ -59,32 +53,27 @@ impl <'a>Shell<'a> {
             stdout.flush().unwrap();
 
             // Leave a blocking call for input.
-            let mut line = String::new();
-            stdin.read_line(&mut line).unwrap();
+            let mut raw_input = String::new();
+            stdin.read_line(&mut raw_input).unwrap();
+            let input = raw_input.trim();
 
             // Copy the input and record to history.
             // This provides the shell a dedicated copy that is not shared with commands. 
             // Copied from fletcher
-            let historical_copy = line.clone();
+            let historical_copy = input.clone();
             self.history_list.push(historical_copy.to_string());
 
-            // TODO: Figure out what `program` does.
-            let cmd_line = line.trim();
-            let program = cmd_line.splitn(1, " ").nth(0).expect("no program");
-            println!("cmd_line: {}", cmd_line);
-            println!("program: {}", program);
-
             // Split the string by " "
-            let spl: Vec<&str> = cmd_line.split(" ").collect();
+            let spl: Vec<&str> = input.split(" ").collect();
 
             // Check how the input should be handled.
-            match self.check_cmd(program) {
+            match self.check_cmd(input) {
                 GashAction::Continue            => { continue; }
                 GashAction::Stop                => { return; }
                 GashAction::RunSync             => { self.run_custom_cmd(spl); }
                 GashAction::RunAsync            => { self.run_custom_cmd(spl); }
-                GashAction::RunSyncBuiltIn      => { self.built_in.run(spl[0], program); }
-                GashAction::RunAsyncBuiltIn     => { self.built_in.run(spl[0], program); }
+                GashAction::RunSyncBuiltIn      => { self.run_cmd(spl); }
+                GashAction::RunAsyncBuiltIn     => { self.run_cmd(spl); }
             }
         }
     }
@@ -150,9 +139,9 @@ impl <'a>Shell<'a> {
 
     // TODO: Add builtin stuff here
     // run runs the built in command.
-    fn run_built_in(&self, cmd_name: &str, input: &str) {
-        match cmd_name {
-            "cd" => self.cd(input),
+    fn run_cmd(&self, argv: Vec<&str>) {
+        match argv[0] {
+            "cd" => self.cd(&argv[1..]),
             "history" => self.history(),
             _ => { println!("No cmd actually exists for this one.");}
         }
@@ -169,16 +158,10 @@ impl <'a>Shell<'a> {
         };
     }
 
-    fn cd(&self, input: &str) {
-        let spl: Vec<&str> = input.split(" ").collect();
-
-        println!("spl: {:?}", spl);
-
-        // Check the arg parameters and if they are useful.
-        let (att_dest, success) = match spl.len() {
-            0 => { ("", false) },
-            1 => { ("", true) },
-            2 => { (spl[1], true) },
+    fn cd(&self, _args: &[&str]) {
+        let (dest, success) = match _args.len() {
+            0 => { ("", true) },
+            1 => { (_args[0], true) },
             _ => { ("", false) },      
         };
 
@@ -186,7 +169,7 @@ impl <'a>Shell<'a> {
             // TODO: Add something
         }
 
-        env::set_current_dir(att_dest).is_ok();
+        env::set_current_dir(dest).is_ok();
     }
 
     fn history(&self) {

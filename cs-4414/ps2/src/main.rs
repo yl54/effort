@@ -20,10 +20,7 @@ extern crate getopts;
 use getopts::Options;
 use std::env;
 
-pub mod builtin;
-pub mod cd;
 pub mod gash;
-pub mod history;
 
 fn get_cmdline_from_args() -> Option<String> {
     /* Begin processing program arguments and initiate the parameters. */
