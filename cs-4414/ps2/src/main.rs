@@ -22,16 +22,6 @@ use std::env;
 
 pub mod gash;
 
-fn get_cmdline_from_args() -> Option<String> {
-    /* Begin processing program arguments and initiate the parameters. */
-    let args: Vec<_> = env::args().collect();
-
-    let mut opts = Options::new();
-    opts.optopt("c", "", "", "");
-
-    opts.parse(&args[1..]).unwrap().opt_str("c")
-}
-
 fn main() {
     gash::Shell::new("gash > ").run();
 }
