@@ -19,15 +19,30 @@ enum GashAction {
     RunAsyncBuiltIn,
 }
 
+// CMD_LIST is a list of strings that are built in commands.
+static CMD_LIST: [&'static str; 2] = [
+    "cd",
+    "history"
+];
+
 pub struct Shell<'a> {
     cmd_prompt: &'a str,
+
+    // TODO: Make history an object here
+    history: Vec<String>,
+
+    // TODO: Make builtin a set of functions rather than an object.
+    //       Or make it a part of the shell
     built_in:   BuiltIn,
+
+   // TODO: Add a mpsc here to send/recieve asynchronous stuff
 }
 
 impl <'a>Shell<'a> {
     pub fn new(prompt_str: &'a str) -> Shell<'a> {
         Shell { 
             cmd_prompt: prompt_str,
+            history:    vec![],
             built_in:   BuiltIn { history: Vec::new() },           
         }
     }
@@ -38,20 +53,25 @@ impl <'a>Shell<'a> {
         let mut stdout = io::stdout();
 
         loop {
+            // Show the input prompt to the user
             stdout.write(self.cmd_prompt.as_bytes()).unwrap();
             stdout.flush().unwrap();
 
+            // Leave a blocking call for input.
             let mut line = String::new();
-
             stdin.read_line(&mut line).unwrap();
+
+            // Copy the input and record to history.
+            // This provides the shell a dedicated copy that is not shared with commands. 
+            // Copied from fletcher
+            let historical_copy = line.clone();
+            self.history.push(historical_copy.to_string());
+
+            // TODO: Figure out what `program` does.
             let cmd_line = line.trim();
             let program = cmd_line.splitn(1, " ").nth(0).expect("no program");
-   
             println!("cmd_line: {}", cmd_line);
             println!("program: {}", program);
-
-            // Record every command that comes in.
-            self.built_in.record_cmd(program.to_string());
 
             // Split the string by " "
             let spl: Vec<&str> = cmd_line.split(" ").collect();
@@ -60,10 +80,10 @@ impl <'a>Shell<'a> {
             match self.check_cmd(program) {
                 GashAction::Continue            => { continue; }
                 GashAction::Stop                => { return; }
-                GashAction::RunSync             => { self.run_custom_cmdline(program); }
-                GashAction::RunAsync            => { self.run_custom_cmdline(program); }
-                GashAction::RunSyncBuiltIn      => { return; }
-                GashAction::RunAsyncBuiltIn     => { return; }
+                GashAction::RunSync             => { self.run_custom_cmdline(spl); }
+                GashAction::RunAsync            => { self.run_custom_cmdline(spl); }
+                GashAction::RunSyncBuiltIn      => { self.built_in.run(spl[0], program); }
+                GashAction::RunAsyncBuiltIn     => { self.built_in.run(spl[0], program); }
             }
         }
     }
@@ -111,15 +131,7 @@ impl <'a>Shell<'a> {
     }
 
     // run_custom_cmdline runs the custom command.
-    pub fn run_custom_cmdline(&self, cmd_line: &str) {
-        let argv: Vec<&str> = cmd_line.split(' ').filter_map(|x| {
-            if x == "" {
-                None
-            } else {
-                Some(x)
-            }
-        }).collect();
-
+    fn run_custom_cmdline(&self, argv: Vec<&str>) {
         match argv.first() {
             Some(&program) => {
                 // At this point, its already been confirmed that the command exists on PATH.
@@ -127,5 +139,9 @@ impl <'a>Shell<'a> {
             },
             None => (),
         };
-    }    
+    }
+
+    // TODO: Add builtin stuff here
+
+    // TODO: Add an async command here
 }
