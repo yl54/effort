@@ -36,14 +36,8 @@ fn get_cmdline_from_args() -> Option<String> {
 }
 
 fn main() {
-    let opt_cmd_line = get_cmdline_from_args();
-
-    match opt_cmd_line {
-        Some(cmd_line) => gash::Shell::new("").run_custom_cmdline(&cmd_line),
-        None           => gash::Shell::new("gash > ").run(),
-    }
+    gash::Shell::new("gash > ").run();
 }
-
 
 /*
 Options to add internal programs
