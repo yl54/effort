@@ -19,10 +19,8 @@ static CMD_LIST: [&'static str; 2] = [
 pub struct Shell<'a> {
     cmd_prompt: &'a str,
 
-    // TODO: Make history an object here
     history_list: Vec<String>,
 
-    // TODO: Add a mpsc here to send/recieve asynchronous stuff
     //       This will serve as the messages that are shown on the shell prompt
     //       Q: Why does it need to be wrapped in an Option?
     pub tx_pipe: Option<Box<Sender<String>>>,
@@ -97,7 +95,6 @@ impl <'a>Shell<'a> {
         return false;
     }    
 
-    // TODO: Add builtin stuff here
     // run runs the built in command.
     fn run_cmd(&mut self, argv: Vec<&str>) {
         match argv[0] {
