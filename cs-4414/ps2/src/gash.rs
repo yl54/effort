@@ -80,8 +80,8 @@ impl <'a>Shell<'a> {
             match self.check_cmd(program) {
                 GashAction::Continue            => { continue; }
                 GashAction::Stop                => { return; }
-                GashAction::RunSync             => { self.run_custom_cmdline(spl); }
-                GashAction::RunAsync            => { self.run_custom_cmdline(spl); }
+                GashAction::RunSync             => { self.run_custom_cmd(spl); }
+                GashAction::RunAsync            => { self.run_custom_cmd(spl); }
                 GashAction::RunSyncBuiltIn      => { self.built_in.run(spl[0], program); }
                 GashAction::RunAsyncBuiltIn     => { self.built_in.run(spl[0], program); }
             }
@@ -89,30 +89,30 @@ impl <'a>Shell<'a> {
     }
 
     // check_cmd checks the input and determines the action to take.
-    fn check_cmd(&mut self, cmd_line: &str) -> GashAction {
-        match cmd_line {
+    fn check_cmd(&mut self, raw_input: &str) -> GashAction {
+        match raw_input {
             ""      =>  { return GashAction::Continue; }
             "exit"  =>  { return GashAction::Stop; }
             _       =>  {  }
         };
 
-        let spl: Vec<&str> = cmd_line.split(" ").collect();
+        let spl: Vec<&str> = raw_input.split(" ").collect();
         let len = spl.len();
 
         // Check if the array actually exists.
         if len <= 0 {
-            println!("Input was not parsed into parts: {}", cmd_line);
+            println!("Input was not parsed into parts: {}", raw_input);
             return GashAction::Continue;
         }
 
         // Check if the command does not exist as a builtin or in the PATH.
-        if !self.built_in.is_built_in(spl[0]) && !self.path_cmd_exists(cmd_line) {
-            println!("Input was not a built in or on PATH: {}", cmd_line);
+        if !self.is_built_in(spl[0]) && !self.path_cmd_exists(raw_input) {
+            println!("Input was not a built in or on PATH: {}", raw_input);
             return GashAction::Continue;
         }
 
         // Check if its a built in.
-        if self.built_in.is_built_in(spl[0]) {
+        if self.is_built_in(spl[0]) {
             match spl[len - 1] {
                 "&" => { return GashAction::RunAsyncBuiltIn; }
                 _ => { return GashAction::RunSyncBuiltIn; }
@@ -130,8 +130,25 @@ impl <'a>Shell<'a> {
         Command::new("which").arg(cmd_path).status().unwrap().success()
     }
 
-    // run_custom_cmdline runs the custom command.
-    fn run_custom_cmdline(&self, argv: Vec<&str>) {
+    // is_built_in checks if the command is built in.
+    fn is_built_in(&self, input: &str) -> bool {
+        // return the result of contains
+        return self.contains(input);
+    }
+
+    // contains checks the built in list to see if it is a built in command.
+    fn contains(&self, input: &str) -> bool {
+        for i in 0..CMD_LIST.len() {
+            if input == CMD_LIST[i] {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // run_custom_cmd runs the custom command passed in.
+    fn run_custom_cmd(&self, argv: Vec<&str>) {
         match argv.first() {
             Some(&program) => {
                 // At this point, its already been confirmed that the command exists on PATH.
