@@ -8,16 +8,6 @@ use std::process::Command;
 use std::thread;
 use std::vec::Vec;
 
-// GashAction describes what to do per input.
-enum GashAction {
-    Continue,
-    Stop,
-    RunSync,
-    RunAsync,
-    RunSyncBuiltIn,
-    RunAsyncBuiltIn,
-}
-
 // CMD_LIST is a list of strings that are built in commands.
 static CMD_LIST: [&'static str; 2] = [
     "cd",
