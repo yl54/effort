@@ -22,8 +22,11 @@ use std::env;
 
 pub mod gash;
 
+const COMMAND_PROMPT: &str = "gash > ";
+
 fn main() {
-    gash::Shell::new("gash > ").run();
+    let mut g: gash::Shell = gash::Shell::new(COMMAND_PROMPT);
+    g.run();
 }
 
 /*
