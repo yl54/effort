@@ -56,15 +56,15 @@ impl <'a>Shell<'a> {
             let historical_copy = input.clone();
             self.history_list.push(historical_copy.to_string());
 
-            // Split the string by " "
-            let spl: Vec<&str> = input.split(" ").collect();
-
             // Check if we need to exit
-            match spl[0] {
+            match input {
                 ""      =>  { continue; }
                 "exit" => { return; }
                 _ => { }
             }
+
+            // Split the string by " "
+            let spl: Vec<&str> = input.split(" ").collect();
 
             // Create a new Executor object
             // NOTE: Copying the history list multiple times will suck if
