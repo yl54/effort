@@ -19,7 +19,7 @@ pub struct Shell<'a> {
 
     //       This will serve as the messages that are shown on the shell prompt
     //       Q: Why does it need to be wrapped in an Option?
-    pub tx_pipe: Option<Box<Sender<String>>>,
+    pub tx_pipe: Sender<String>,
     pub rx_pipe: Option<Box<Receiver<String>>>,
 }
 
@@ -29,7 +29,7 @@ impl <'a>Shell<'a> {
         Shell { 
             cmd_prompt: prompt_str,
             history_list:    vec![],
-            tx_pipe: Some(Box::new(tx)),
+            tx_pipe: tx,
             rx_pipe: Some(Box::new(rx)),
         }
     }
@@ -73,7 +73,11 @@ impl <'a>Shell<'a> {
             for history_record in &self.history_list {
                 results.push(history_record.clone());
             }
-            let mut ex = executor::Executor::new(results);
+
+            // Clone the sender
+            let tx_ref = self.tx_pipe.clone();
+
+            let mut ex = executor::Executor::new(results, tx_ref);
 
             // Check if it is an asynchronous execution
             match spl[spl.len() - 1] {

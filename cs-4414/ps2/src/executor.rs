@@ -16,16 +16,16 @@ pub struct Executor {
 
     // TODO: Find a safe way to get this cloned into the thing
     //       The solution is probably an ARC
-    // pub tx_pipe: Option<Box<Sender<String>>>,
+    pub tx_pipe: Sender<String>,
 }
 
 // implementation
 impl Executor {
-    // pub fn new(h_list: Vec<String>, tx: Sender<String>) -> Executor {
-    pub fn new(h_list: Vec<String>) -> Executor {
+    pub fn new(h_list: Vec<String>, tx: Sender<String>) -> Executor {
+    // pub fn new(h_list: Vec<String>) -> Executor {
         Executor { 
             history_list:    h_list,
-            // tx_pipe: Some(Box::new(tx)),
+            tx_pipe: tx,
         }
     }
 
@@ -83,7 +83,7 @@ impl Executor {
     }
 
     fn history(&mut self) {
-        // self.send_message("start history commmand".to_string());
+        self.send_message("start history commmand".to_string());
 
         // Clone each history value dedicated for letting the println function borrow it.
         // Stolen from fletcher
@@ -91,30 +91,19 @@ impl Executor {
         for history_record in &self.history_list {
             results.push(history_record.clone());
         }
-        // self.send_message(format!("{:#?}", results));
-        println!("{}", format!("{:#?}", results))
+        self.send_message(format!("{:#?}", results));
+        println!("{}", format!("{:#?}", results));
 
-        // self.send_message("end cd commmand".to_string());
+        self.send_message("end cd commmand".to_string());
     }
 
-    /*
+    
     // send_message takes any message and sends it to a queue to display as output
     fn send_message(&mut self, msg: String) {
-        // Check the sending pipe
-        match &self.tx_pipe {
-            // If it exists, then attempt to send to pipe
-            // q: what are scenarios where this will not exist?
-            Some(pipe) => {
-                // Check if the send into the pipe worked
-                match pipe.send(msg) {
-                    Ok(_) => {}
-                    Err(_e) => {}
-                };
-            }
-
-            // If it doesnt exist, then do nothing
-            None => {}
-        }
+        // Check if the send into the pipe worked
+        match self.tx_pipe.send(msg) {
+            Ok(_) => {}
+            Err(_e) => {}
+        };
     }
-    */
 }
