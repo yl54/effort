@@ -13,16 +13,12 @@ use std::vec::Vec;
 // Executor struct
 pub struct Executor {
     history_list: Vec<String>,
-
-    // TODO: Find a safe way to get this cloned into the thing
-    //       The solution is probably an ARC
-    pub tx_pipe: Sender<String>,
+    tx_pipe: Sender<String>,
 }
 
 // implementation
 impl Executor {
     pub fn new(h_list: Vec<String>, tx: Sender<String>) -> Executor {
-    // pub fn new(h_list: Vec<String>) -> Executor {
         Executor { 
             history_list:    h_list,
             tx_pipe: tx,
