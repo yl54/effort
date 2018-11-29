@@ -11,22 +11,37 @@ use std::thread;
 use std::vec::Vec;
 
 // Executor struct
+#[derive(Clone, Debug)]
 pub struct Executor {
     history_list: Vec<String>,
+    current_cmd: String,
     tx_pipe: Sender<String>,
 }
 
 // implementation
 impl Executor {
-    pub fn new(h_list: Vec<String>, tx: Sender<String>) -> Executor {
-        Executor { 
-            history_list:    h_list,
+    pub fn new(tx: Sender<String>) -> Executor {
+        Executor {
+            history_list:    vec![],
+            current_cmd: "".to_string(),
             tx_pipe: tx,
         }
     }
 
+    pub fn add_to_history(&mut self, input: String) {
+        let historical_copy = input.clone();
+        self.history_list.push(historical_copy.to_string());
+    }
+
+    pub fn set_current_cmd(&mut self, input: String) {
+        self.current_cmd = input.clone();
+    }
+
     // run_cmd runs the built in command.
-    pub fn run_cmd(&mut self, argv: Vec<&str>) {
+    pub fn run_cmd(&mut self) {
+        // Split the string by " "
+        let cl = self.current_cmd.clone();
+        let argv: Vec<&str> = cl.split(" ").collect();
         match argv[0] {
             "cd" => self.cd(&argv[1..]),
             "history" => self.history(),
@@ -37,7 +52,6 @@ impl Executor {
     // run_custom_cmd runs the custom command passed in.
     fn run_custom_cmd(&mut self, argv: Vec<&str>) {
         // println!(format!("start custom commmand: {:#?}", _args));
-
         if !self.path_cmd_exists(argv[0]) {
             println!("Custom command does not exist.");
             return;

@@ -3,6 +3,7 @@
 
 use executor::Executor;
 use getopts::Options;
+use scheduler::Scheduler;
 use std::env;
 use std::fmt::Display;
 use std::io::{self, Write};
@@ -23,6 +24,8 @@ pub struct Shell<'a> {
     pub rx_pipe: Option<Box<Receiver<String>>>,
 
     ex: Executor,
+
+    sc: Scheduler,
 }
 
 impl <'a>Shell<'a> {
@@ -35,6 +38,7 @@ impl <'a>Shell<'a> {
             tx_pipe: tx,
             rx_pipe: Some(Box::new(rx)),
             ex: Executor::new(tx_ref),
+            sc: Scheduler{},
         }
     }
 
@@ -58,8 +62,9 @@ impl <'a>Shell<'a> {
             // Copy the input and record to history.
             // This provides the shell a dedicated copy that is not shared with commands. 
             // Copied from fletcher
-            // let historical_copy = input.clone();
-            // self.history_list.push(historical_copy.to_string());
+            self.ex.add_to_history(input.to_string());
+
+            self.ex.set_current_cmd(input.to_string());
 
             // Check if we need to exit
             match input {
@@ -68,20 +73,14 @@ impl <'a>Shell<'a> {
                 _ => { }
             }
 
-            // Create a new Executor object
-            // NOTE: Copying the history list multiple times will suck if
-            //       there are many records. 
-            let mut results = vec![];
-            for history_record in &self.history_list {
-                results.push(history_record.clone());
-            }
-
             // Check if it is an asynchronous execution
-            let count = self.history_list.len() - 1;
+            // let count = self.history_list.len() - 1;
             let spl: Vec<&str> = input.split(" ").collect();
             match spl[spl.len() - 1] {
-                "&" => { self.ex.run_cmd(input); }          
-                _ => { self.ex.run_cmd(self.history_list[count].as_str()); }
+                "&" => { 
+                    self.sc.run_executor(self.ex.clone()); 
+                }          
+                _ => { self.ex.run_cmd(); }
             }
         }
     }
