@@ -23,6 +23,7 @@ use std::thread;
 
 pub mod gash;
 pub mod executor;
+pub mod scheduler;
 
 const COMMAND_PROMPT: &str = "gash > ";
 

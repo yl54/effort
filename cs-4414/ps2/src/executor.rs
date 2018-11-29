@@ -5,6 +5,7 @@ use std::env;
 use std::fmt::Display;
 use std::io::{self, Write};
 use std::process::Command;
+use std::str;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
@@ -59,11 +60,14 @@ impl Executor {
 
         match argv.first() {
             Some(&program) => {
-                // At this point, its already been confirmed that the command exists on PATH.
-                // TODO: Figure out how to get to the send_message
-                io::stdout().write(&Command::new(program).args(&argv[1..]).output().unwrap().stdout).unwrap();
+                let result = &Command::new(program).args(&argv[1..]).output().unwrap().stdout;
+                let string_result = str::from_utf8(&result).unwrap().to_string();
+                println!("{}", string_result.to_string());
+                self.send_message(string_result);
             },
-            None => (),
+            None => {
+                self.send_message("No command existed".to_string());
+            },
         };
 
         // println!("end custom commmand.");
@@ -102,7 +106,7 @@ impl Executor {
             results.push(history_record.clone());
         }
         self.send_message(format!("{:#?}", results));
-        println!("{}", format!("{:#?}", results));
+        // println!("{}", format!("{:#?}", results));
 
         self.send_message("end cd commmand".to_string());
     }
