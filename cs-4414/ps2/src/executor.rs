@@ -29,18 +29,19 @@ impl Executor {
         }
     }
 
+    // add_to_history adds the input to the history list
     pub fn add_to_history(&mut self, input: String) {
         let historical_copy = input.clone();
         self.history_list.push(historical_copy.to_string());
     }
 
+    // set_current_cmd sets the command to run for the executor
     pub fn set_current_cmd(&mut self, input: String) {
         self.current_cmd = input.clone();
     }
 
     // run_cmd runs the built in command.
     pub fn run_cmd(&mut self) {
-        // Split the string by " "
         let cl = self.current_cmd.clone();
         let argv: Vec<&str> = cl.split(" ").collect();
         match argv[0] {
