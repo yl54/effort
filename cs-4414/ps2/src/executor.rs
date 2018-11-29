@@ -14,7 +14,6 @@ use std::vec::Vec;
 // Executor struct
 #[derive(Clone, Debug)]
 pub struct Executor {
-    history_list: Vec<String>,
     current_cmd: String,
     tx_pipe: Sender<String>,
 }
@@ -23,16 +22,9 @@ pub struct Executor {
 impl Executor {
     pub fn new(tx: Sender<String>) -> Executor {
         Executor {
-            history_list:    vec![],
             current_cmd: "".to_string(),
             tx_pipe: tx,
         }
-    }
-
-    // add_to_history adds the input to the history list
-    pub fn add_to_history(&mut self, input: String) {
-        let historical_copy = input.clone();
-        self.history_list.push(historical_copy.to_string());
     }
 
     // set_current_cmd sets the command to run for the executor
@@ -44,15 +36,7 @@ impl Executor {
     pub fn run_cmd(&mut self) {
         let cl = self.current_cmd.clone();
         let argv: Vec<&str> = cl.split(" ").collect();
-        match argv[0] {
-            "cd" => self.cd(&argv[1..]),
-            "history" => self.history(),
-            _ => { self.run_custom_cmd(argv) }
-        }
-    }
 
-    // run_custom_cmd runs the custom command passed in.
-    fn run_custom_cmd(&mut self, argv: Vec<&str>) {
         // println!(format!("start custom commmand: {:#?}", _args));
         if !self.path_cmd_exists(argv[0]) {
             println!("Custom command does not exist.");
@@ -77,39 +61,6 @@ impl Executor {
     // path_cmd_exists checks if the command exists on PATH.
     fn path_cmd_exists(&mut self, cmd_path: &str) -> bool {
         Command::new("which").arg(cmd_path).status().unwrap().success()
-    }
-
-    fn cd(&mut self, _args: &[&str]) {
-        // self.send_message(format!("start cd commmand: {:#?}", _args));
-        let (dest, success) = match _args.len() {
-            0 => { ("", true) },
-            1 => { (_args[0], true) },
-            _ => { ("", false) },      
-        };
-
-        if !success {
-            // self.send_message("cd commmand failed.".to_string());
-        }
-
-        let success: bool = env::set_current_dir(dest).is_ok();
-        // self.send_message(format!("cd commmand status: {}", success));
-
-        // self.send_message("end cd commmand".to_string());
-    }
-
-    fn history(&mut self) {
-        self.send_message("start history commmand".to_string());
-
-        // Clone each history value dedicated for letting the println function borrow it.
-        // Stolen from fletcher
-        let mut results = vec![];
-        for history_record in &self.history_list {
-            results.push(history_record.clone());
-        }
-        self.send_message(format!("{:#?}", results));
-        // println!("{}", format!("{:#?}", results));
-
-        self.send_message("end cd commmand".to_string());
     }
 
     // send_message takes any message and sends it to a queue to display as output

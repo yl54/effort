@@ -56,7 +56,7 @@ impl <'a>Shell<'a> {
             stdin.read_line(&mut raw_input).unwrap();
             let input = raw_input.trim();     
 
-            // Check if we need to exit
+            // Check if we need to exit or continue
             match input {
                 ""      =>  { continue; }
                 "exit" => { return; }
@@ -66,17 +66,71 @@ impl <'a>Shell<'a> {
             // Copy the input and record to history.
             // This provides the shell a dedicated copy that is not shared with commands. 
             // Copied from fletcher
-            self.ex.add_to_history(input.to_string());
+            self.add_to_history(input.to_string());
             self.ex.set_current_cmd(input.to_string());
+            
+            // Check if it's any custom type
+            let argv: Vec<&str> = input.split(" ").collect();
+            match argv[0] {
+                "cd" => { 
+                    self.cd(&argv[1..]);
+                    continue;
+                }
+                "history" => {
+                    self.history();
+                    continue;
+                }
+                _ => {}
+            }
 
             // Check if it is an asynchronous execution
-            let spl: Vec<&str> = input.split(" ").collect();
-            match spl[spl.len() - 1] {
+            match argv[argv.len() - 1] {
                 "&" => {
                     self.sc.run_executor(self.ex.clone()); 
                 }          
                 _ => { self.ex.run_cmd(); }
             }
         }
+    }
+
+    // add_to_history adds the input to the history list
+    fn add_to_history(&mut self, input: String) {
+        let historical_copy = input.clone();
+        self.history_list.push(historical_copy.to_string());
+    }
+
+    // cd executes the cd bash command. It is assumed that this will not be used asynchronously. If it needs to, then add it to the executor.
+    fn cd(&mut self, _args: &[&str]) {
+        // println!(format!("start cd commmand: {:#?}", _args));
+        let (dest, success) = match _args.len() {
+            0 => { ("", true) },
+            1 => { (_args[0], true) },
+            _ => { ("", false) },      
+        };
+
+        if !success {
+            // println!("cd commmand failed.".to_string());
+        }
+
+        let success: bool = env::set_current_dir(dest).is_ok();
+        // println!(format!("cd commmand status: {}", success));
+
+        // println!("end cd commmand".to_string());
+    }
+
+    // history executes the history bash command. It is assumed that this will not be used asynchronously. If it needs to, then add this and the history_list to the executor.
+    fn history(&mut self) {
+        println!("{}", "start history commmand".to_string());
+
+        // Clone each history value dedicated for letting the println function borrow it.
+        // Stolen from fletcher
+        let mut results = vec![];
+        for history_record in &self.history_list {
+            results.push(history_record.clone());
+        }
+        println!("{}", format!("{:#?}", results));
+        // println!("{}", format!("{:#?}", results));
+
+        println!("{}", "end history commmand".to_string());
     }
 }
