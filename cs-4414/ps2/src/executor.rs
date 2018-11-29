@@ -111,7 +111,6 @@ impl Executor {
         self.send_message("end cd commmand".to_string());
     }
 
-    
     // send_message takes any message and sends it to a queue to display as output
     fn send_message(&mut self, msg: String) {
         // Check if the send into the pipe worked

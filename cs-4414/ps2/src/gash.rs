@@ -79,6 +79,4 @@ impl <'a>Shell<'a> {
             }
         }
     }
-
-    // TODO: Add an async command here
 }
