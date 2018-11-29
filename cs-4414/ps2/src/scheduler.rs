@@ -3,7 +3,6 @@
 // Use statements
 use executor::Executor;
 use thread;
-use thread::JoinHandle;
 
 // Struct for scheduler
 pub struct Scheduler {
