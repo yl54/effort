@@ -1,7 +1,7 @@
 // This file has the implementation of the gash shell.
 // This represents the REPL layer of the shell.
 
-use executor;
+use executor::Executor;
 use getopts::Options;
 use std::env;
 use std::fmt::Display;
@@ -21,22 +21,27 @@ pub struct Shell<'a> {
     //       Q: Why does it need to be wrapped in an Option?
     pub tx_pipe: Sender<String>,
     pub rx_pipe: Option<Box<Receiver<String>>>,
+
+    ex: Executor,
 }
 
 impl <'a>Shell<'a> {
     pub fn new(prompt_str: &'a str) -> Shell<'a> {
         let (tx, rx): (Sender<String>, Receiver<String>) = mpsc::channel();
+        let tx_ref = tx.clone();
         Shell { 
             cmd_prompt: prompt_str,
             history_list:    vec![],
             tx_pipe: tx,
             rx_pipe: Some(Box::new(rx)),
+            ex: Executor::new(tx_ref),
         }
     }
 
     // run is the main loop for the gash shell.
     pub fn run(&mut self) {
         let mut stdout = io::stdout();
+        let count = 0;
 
         loop {
             // TODO: Figure out how to make this a part of send_message
@@ -53,8 +58,8 @@ impl <'a>Shell<'a> {
             // Copy the input and record to history.
             // This provides the shell a dedicated copy that is not shared with commands. 
             // Copied from fletcher
-            let historical_copy = input.clone();
-            self.history_list.push(historical_copy.to_string());
+            // let historical_copy = input.clone();
+            // self.history_list.push(historical_copy.to_string());
 
             // Check if we need to exit
             match input {
@@ -62,9 +67,6 @@ impl <'a>Shell<'a> {
                 "exit" => { return; }
                 _ => { }
             }
-
-            // Split the string by " "
-            let spl: Vec<&str> = input.split(" ").collect();
 
             // Create a new Executor object
             // NOTE: Copying the history list multiple times will suck if
@@ -74,15 +76,12 @@ impl <'a>Shell<'a> {
                 results.push(history_record.clone());
             }
 
-            // Clone the sender
-            let tx_ref = self.tx_pipe.clone();
-
-            let mut ex = executor::Executor::new(results, tx_ref);
-
             // Check if it is an asynchronous execution
+            let count = self.history_list.len() - 1;
+            let spl: Vec<&str> = input.split(" ").collect();
             match spl[spl.len() - 1] {
-                "&" => { ex.run_cmd(spl); }
-                _ => { ex.run_cmd(spl); }
+                "&" => { self.ex.run_cmd(input); }          
+                _ => { self.ex.run_cmd(self.history_list[count].as_str()); }
             }
         }
     }
