@@ -36,7 +36,7 @@ impl <'a>Shell<'a> {
             tx_pipe: tx,
             rx_pipe: Some(Box::new(rx)),
             ex: Executor::new(tx_ref),
-            sc: Scheduler{},
+            sc: Scheduler::new(),
         }
     }
 
@@ -80,6 +80,10 @@ impl <'a>Shell<'a> {
                     self.history();
                     continue;
                 }
+                "plist" => {
+                    self.plist();
+                    continue;
+                }
                 _ => {}
             }
 
@@ -120,7 +124,7 @@ impl <'a>Shell<'a> {
 
     // history executes the history bash command. It is assumed that this will not be used asynchronously. If it needs to, then add this and the history_list to the executor.
     fn history(&mut self) {
-        println!("{}", "start history commmand".to_string());
+        // println!("{}", "start history commmand".to_string());
 
         // Clone each history value dedicated for letting the println function borrow it.
         // Stolen from fletcher
@@ -129,8 +133,20 @@ impl <'a>Shell<'a> {
             results.push(history_record.clone());
         }
         println!("{}", format!("{:#?}", results));
-        // println!("{}", format!("{:#?}", results));
 
-        println!("{}", "end history commmand".to_string());
+        // println!("{}", "end history commmand".to_string());
     }
+
+    // plist lists the processes recorded by the scheduler
+    fn plist(&mut self) {
+        self.sc.show_process_list();
+    }
+
+    // TODO: Add process list handling.
+
+    // TODO: Add background process delete
+
+    // TODO: Add background process signal sending
+
+    // TODO: Add piping handling
 }

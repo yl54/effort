@@ -71,4 +71,10 @@ impl Executor {
             Err(_e) => {}
         };
     }
+
+    // get_cmd returns the command loaded into the Executor.
+    pub fn get_cmd(&mut self) -> String {
+        let s = self.current_cmd.clone();
+        return s;
+    }
 }
