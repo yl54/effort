@@ -116,7 +116,7 @@ impl Executor {
         while cmd_index < cmd_len {
             let cmd_cl = cmd_parts[cmd_index].clone();
 
-            // split up the command into pieces
+            // Split up the command into args
             let argv: Vec<&str> = cmd_cl.split(" ").collect();
             let cl_arg_0 = argv[0].to_string().clone();
             let cl_argv = argv.clone();
@@ -147,16 +147,15 @@ impl Executor {
 
             // Do a while loop over the pipe vec
             while cmd_index < cmd_len && !is_output_pipe {
-                
                 let current_cmd = cmd_parts[cmd_index].clone();
                 let current_ch = pipe[pipe_index];
 
-                // If there is input, then append to the standard input
+                // Check if there is an input redirection
                 if current_ch == INPUT_CH {
                     let current_path = Path::new(current_cmd.as_str());
                     let display = current_path.display();
 
-                    // check if the input at cmd_index is a file that exists
+                    // Check if the path is a file that exists
                     if !current_path.is_file() {
                         let message = format!("provided input is not a file: {}", display);
                         self.send_message(message);
@@ -189,10 +188,10 @@ impl Executor {
                     // Concactenate input to already existing input
                     input = format!("{}\n{}", input, s);
                 
-                // If there is an output, then check if the next one is a file
+                // Check if there is an output redirection
                 } else if current_ch == OUTPUT_CH {
-                    // check if the output at cmd_index is a valid file
-                    // it basically has to be a string with no whitespace
+                    // Check if the command is a valid file
+                    // It has to be a string with no whitespace
                     let arg: Vec<&str> = current_cmd.split(" ").collect();
                     if arg.len() > 1 {
                         let message = format!("output file is invalid: {}", current_cmd);
@@ -200,19 +199,18 @@ impl Executor {
                         return;
                     }
 
-                    // if it is valid, set the output file and bool
+                    // If it is a valid output destination, set the output file and bool
                     is_output_file = true;
                     output_file = current_cmd.clone();
 
-                // If there is an pipe, then end and indicate there is a pipe
-                // Exit loop no matter what
+                // Check if there is an input redirection
                 } else if current_ch == PIPE_CH {
-                    // Check if an output command already exists
-                    // if not, then mark it as done b/c pipe
+                    // Make sure there is no output file
                     if !is_output_file {
                         is_output_pipe = true;
                     }
                     
+                    // Exit loop no matter what
                     break;
                 }
 
@@ -222,21 +220,19 @@ impl Executor {
 
             // Spawn a command
             let mut process = match Command::new(cl_arg_0)
-                                        .stdin(Stdio::piped())
-                                        .stdout(Stdio::piped())
-                                        .args(&cl_argv[1..])
-                                        .spawn() {
+                                            .stdin(Stdio::piped())
+                                            .stdout(Stdio::piped())
+                                            .args(&cl_argv[1..])
+                                            .spawn() {
                 Err(why) => {
                                 let message = format!("couldn't spawn wc: {}", why.description());
-                                self.send_message("{}", message);
+                                self.send_message(message);
                                 return;
                             },
                 Ok(process) => process,
             };
 
-
-            // Handle the input for the process.
-            // Q: why does this need to be in its own scope
+            // Handle the input for the process
             {
                 // The `stdin` field has type `Option<PipeStream>`
                 // `take` will take the value out of an `Option`, leaving `None` in
@@ -245,12 +241,11 @@ impl Executor {
                 // Note that we take ownership of `stdin` here
                 let mut stdin = process.stdin.as_mut().unwrap();
                 let cl_input = input.clone();
-                println!("cl_input: {}", cl_input);
 
                 // Write a string to the stdin of the command
                 // match stdin.write_all(b"PANGRAM") {
-                let input_bytes = input.into_bytes();
-                match stdin.write_all(&input_bytes) {
+                let cl_input_bytes = input.into_bytes();
+                match stdin.write_all(&cl_input_bytes) {
                     Err(why) => panic!("couldn't write to process stdin: {}", "why.desc"),
                     Ok(_) => println!("wrote to stdin: {}", cl_input),
                 }
@@ -258,13 +253,9 @@ impl Executor {
                 // `stdin` gets `drop`ed here, and the pipe is closed
                 // This is very important, otherwise `wc` wouldn't start processing the
                 // input we just sent
-                println!("made it here 1:");
             }
 
             // Execute the command
-            let mut stdout_str = String::new();
-            println!("made it here 2:");
-
             let current_output = match process.wait_with_output() {
                 Err(why) => {
                                 let message = format!("couldn't read commands stdout:{}",
@@ -276,7 +267,8 @@ impl Executor {
             };
 
             // Check why the loop ended
-            // If there was an output file, then write to that file.
+
+            // Check if there is an output file
             if is_output_file {
                 let output_path = Path::new(output_file.as_str());
                 let display = output_path.display();
@@ -301,7 +293,7 @@ impl Executor {
                 // Flush out the output
                 break;
 
-            // If there was a pipe found, then let the outside output be what the output is here
+            // Check if there is a pipe output.
             } else if is_output_pipe {
                 output = current_output;
             }            
@@ -324,7 +316,7 @@ impl Executor {
         }
 
         if !self.path_cmd_exists(argv[0]) {
-            println!("Custom command does not exist.");
+            self.send_message("Custom command does not exist.".to_string());
             return;
         }
 
@@ -335,8 +327,6 @@ impl Executor {
         // Create the command struct
         let mut exec = Command::new(cl_arg_0);
         let exec_args = exec.args(&cl_argv[1..]);
-
-        // Pass in the input into the command struct
 
         // Get the stdout of the command struct
         let output = exec_args.output().unwrap().stdout;
@@ -397,9 +387,6 @@ impl Executor {
             // This is a failure. Return a failed thing.
             return (vec![], vec![], false) 
         }
-
-        println!("{:?}", cmd_parts.clone());
-        println!("{:?}", piping_vec.clone());
 
         return (cmd_parts, piping_vec, true)
     }
