@@ -109,25 +109,19 @@ impl Executor {
         let mut output: String = "".to_string();
 
         // Keep track if its a piped request
+        let mut is_output_pipe = false; 
 
         // Use a while loop over the index of the cmd part.
         // Check if the index is less than length
-        while cmd_index < cmd_len - 1 {
+        while cmd_index < cmd_len {
             let cmd_cl = cmd_parts[cmd_index].clone();
-
-            // Check if there is anything in the pipe
-            if cmd_index >= pipe_len {
-                self.run_single_cmd(cmd_cl);
-                return;
-            }
 
             // split up the command into pieces
             let argv: Vec<&str> = cmd_cl.split(" ").collect();
             let cl_arg_0 = argv[0].to_string().clone();
             let cl_argv = argv.clone();
 
-            // Check if the command exists. This string at this index should always be on a command, never file
-            // NOTE: f.txt | grep is not a thing
+            // Check if the command exists. This string at this index should always be on a command, never file.
             if !self.path_cmd_exists(cl_arg_0.as_str()) {
                 let message = format!("Nothing exists for this command: {}", cl_arg_0);
                 self.send_message(message);
@@ -149,11 +143,11 @@ impl Executor {
 
             // Keep track if a pipe has been seen.
             // If there is a pipe, then stop while loop. Handle it in the next one.
-            let mut is_output_pipe = false;
+            cmd_index += 1;
 
             // Do a while loop over the pipe vec
-            while cmd_index < cmd_len - 1 && !is_output_pipe {
-                cmd_index += 1;
+            while cmd_index < cmd_len && !is_output_pipe {
+                
                 let current_cmd = cmd_parts[cmd_index].clone();
                 let current_ch = pipe[pipe_index];
 
@@ -222,6 +216,7 @@ impl Executor {
                     break;
                 }
 
+                cmd_index += 1;
                 pipe_index += 1;
             }
 
@@ -233,7 +228,7 @@ impl Executor {
                                         .spawn() {
                 Err(why) => {
                                 let message = format!("couldn't spawn wc: {}", why.description());
-                                println!("{}", message);
+                                self.send_message("{}", message);
                                 return;
                             },
                 Ok(process) => process,
@@ -250,6 +245,7 @@ impl Executor {
                 // Note that we take ownership of `stdin` here
                 let mut stdin = process.stdin.as_mut().unwrap();
                 let cl_input = input.clone();
+                println!("cl_input: {}", cl_input);
 
                 // Write a string to the stdin of the command
                 // match stdin.write_all(b"PANGRAM") {
@@ -265,9 +261,6 @@ impl Executor {
                 println!("made it here 1:");
             }
 
-            // TODO: Fails here if there is input
-            
-
             // Execute the command
             let mut stdout_str = String::new();
             println!("made it here 2:");
@@ -277,16 +270,10 @@ impl Executor {
                                 let message = format!("couldn't read commands stdout:{}",
                                                                 why.description());
                                 println!("{}", message);
-                                stdout_str.clone()
+                                "".to_string()
                             },
                 Ok(thing) => String::from_utf8(thing.stdout).expect("Not UTF-8")
             };
-
-            println!("current_output: {}", current_output);
-
-            output = current_output;
-
-            println!("made it here 3:");
 
             // Check why the loop ended
             // If there was an output file, then write to that file.
@@ -306,31 +293,17 @@ impl Executor {
                     Ok(file) => file,
                 };
 
-                // TODO: Fails to write output to file
-
                 // Write the output string to `file`, returns `io::Result<()>`
-                /*
-                let outcome = match file.write_all(current_output.as_bytes()) {
-                    Err(why) => {
-                        let message = format!("couldn't write to {}: {}",
-                                                               display,
-                                                               why.description());
-                        self.send_message(message);
-                        "thing"
-                    },
-                    // Ok(_) => println!("successfully wrote to {}", display),
-                    Ok(_) => "things",
-                };
-                */
-                // grep name < Cargo.toml > thing.txt
-                let outcome = file.write_all(output.clone().as_bytes()).expect("Unable to write data");
+                let outcome = file.write_all(current_output.clone().as_bytes()).expect("Unable to write data");
+                output = "".to_string();
+                is_output_pipe = false;
 
                 // Flush out the output
                 break;
 
             // If there was a pipe found, then let the outside output be what the output is here
             } else if is_output_pipe {
-                output = stdout_str;
+                output = current_output;
             }            
         }
 
