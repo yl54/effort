@@ -271,7 +271,7 @@ impl Executor {
             // Execute the command
             let mut stdout_str = String::new();
             println!("made it here 2:");
-            
+
             let current_output = match process.wait_with_output() {
                 Err(why) => {
                                 let message = format!("couldn't read commands stdout:{}",
@@ -306,17 +306,24 @@ impl Executor {
                     Ok(file) => file,
                 };
 
+                // TODO: Fails to write output to file
+
                 // Write the output string to `file`, returns `io::Result<()>`
-                match file.write_all(stdout_str.as_bytes()) {
+                /*
+                let outcome = match file.write_all(current_output.as_bytes()) {
                     Err(why) => {
                         let message = format!("couldn't write to {}: {}",
                                                                display,
                                                                why.description());
                         self.send_message(message);
-                        return;
+                        "thing"
                     },
-                    Ok(_) => println!("successfully wrote to {}", display),
-                }
+                    // Ok(_) => println!("successfully wrote to {}", display),
+                    Ok(_) => "things",
+                };
+                */
+                // grep name < Cargo.toml > thing.txt
+                let outcome = file.write_all(output.clone().as_bytes()).expect("Unable to write data");
 
                 // Flush out the output
                 break;
