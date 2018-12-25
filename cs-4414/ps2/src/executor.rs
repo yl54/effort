@@ -1,28 +1,18 @@
 // This file implements the executor layer of the shell.
 
-use getopts::Options;
-use std::env;
 use std::error::Error;
-use std::fmt::Display;
 use std::fs::File;
-use std::io::{self, Read, Write};
-use std::io::{BufRead, BufReader, BufWriter};
+use std::io::{Read, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
 use std::str;
-use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
+use std::sync::mpsc::Sender;
 use std::vec::Vec;
-
 
 // Piping delimiters
 const INPUT_CH: char = '<';
 const OUTPUT_CH: char = '>';
 const PIPE_CH: char = '|';
-
-// Delimiter for stopping
-const SEMICOLON_CH: char = ';';
 
 // Executor struct
 #[derive(Clone, Debug)]
@@ -31,7 +21,7 @@ pub struct Executor {
     tx_pipe: Sender<String>,
 }
 
-// implementation
+// An Executor takes a string input and executes the shell command.
 impl Executor {
     pub fn new(tx: Sender<String>) -> Executor {
         Executor {
@@ -40,83 +30,42 @@ impl Executor {
         }
     }
 
-    // set_current_cmd sets the command to run for the executor
+    // set_current_cmd sets the command to run for the executor.
     pub fn set_current_cmd(&mut self, input: String) {
         self.current_cmd = input.clone();
     }
 
-    // run_cmd runs the built in command.
+    // run_cmd gets the command input and executes it.
     pub fn run_cmd(&mut self) {
-        let cl = self.current_cmd.clone();
-
-        let argv: Vec<&str> = cl.split(" ").collect();
-        
-        // Do a for loop for input/output
-
-        // Maybe it should have each its own input and output
-        // https://doc.rust-lang.org/std/process/struct.Command.html#method.stdin
-
-
-        // println!(format!("start custom commmand: {:#?}", _args));
-        if !self.path_cmd_exists(argv[0]) {
-            println!("Custom command does not exist.");
-            return;
-        }
-
-        match argv.first() {
-            Some(&program) => {
-                let result = &Command::new(program).args(&argv[1..]).output().unwrap().stdout;
-                let string_result = str::from_utf8(&result).unwrap().to_string();
-                println!("{}", string_result.to_string());
-                self.send_message(string_result);
-            },
-            None => {
-                self.send_message("No command existed".to_string());
-            }
-        };
-
-        // println!("end custom commmand.");
-    }
-
-    pub fn run_cmd_loop(&mut self) {
-        // Split up the command into piped pieces
+        // Split up the command into piped pieces.
         let (cmd_parts, pipe, ok) = self.split_pipe();
-
-        // Check if the split worked.
         if !ok {
             return;
         }
 
-        // Record length of the cmd and pipe
+        // Record length of the cmd and pipe.
         let cmd_len = cmd_parts.len();
-        let pipe_len = pipe.len();
 
-        // Check if there is only one command that exists
+        // Check if there is only one command that exists.
         if cmd_len == 1 {
             self.run_single_cmd(cmd_parts[0].clone());
         }
 
-        // Keep track of which index of cmd part its at
+        // Keep track of which index of cmd part its at.
         let mut cmd_index = 0;
 
-        // Keep track of pipe index
+        // Keep track of pipe index.
         let mut pipe_index = 0;
 
-        // Keep track if things are still being piped
-        let piped = false;
-
-        // Keep track of output for piping
+        // Keep track of output contents for piping.
         let mut output: String = "".to_string();
 
-        // Keep track if its a piped request
+        // Keep track if its a piped request.
         let mut is_output_pipe = false; 
 
         // Use a while loop over the index of the cmd part.
-        // Check if the index is less than length
         while cmd_index < cmd_len {
             let cmd_cl = cmd_parts[cmd_index].clone();
-
-            // Split up the command into args
             let argv: Vec<&str> = cmd_cl.split(" ").collect();
             let cl_arg_0 = argv[0].to_string().clone();
             let cl_argv = argv.clone();
@@ -128,41 +77,33 @@ impl Executor {
                 return;
             }
 
-            // Keep track of the input.
-            // Multiple input characters means concactenate to the string for input
-            // Copy the output variable on the outside, and continue to append to that 
-            // `cat Cargo.toml | grep name < Cargo.lock` is valid and just appends one to the other
+            // Keep track of the input. Initialize it to the previous output.
             let mut input: String = output.clone();
 
-            // Keep track of the output file.
-            // keep track if an output file exists.
-            // Only write to the last one
-            // NOTE: There may be no output file.
+            // Keep track if the output file exists and its name if it exists
             let mut is_output_file = false;
             let mut output_file = String::new();
 
-            // Keep track if a pipe has been seen.
-            // If there is a pipe, then stop while loop. Handle it in the next one.
             cmd_index += 1;
 
-            // Do a while loop over the pipe vec
+            // Loop for input and output redirecting commands.
             while cmd_index < cmd_len && !is_output_pipe {
                 let current_cmd = cmd_parts[cmd_index].clone();
                 let current_ch = pipe[pipe_index];
 
-                // Check if there is an input redirection
+                // Check if there is an input redirection.
                 if current_ch == INPUT_CH {
                     let current_path = Path::new(current_cmd.as_str());
                     let display = current_path.display();
 
-                    // Check if the path is a file that exists
+                    // Check if the path is a file that exists.
                     if !current_path.is_file() {
                         let message = format!("provided input is not a file: {}", display);
                         self.send_message(message);
                         return;
                     }
 
-                    // Open the path in read-only mode, returns `io::Result<File>`
+                    // Open the path in read-only mode, returns `io::Result<File>`.
                     let mut file = match File::open(&current_path) {
                         Err(why) => {
                                         let message = format!("couldn't open {}: {}", display,
@@ -173,7 +114,7 @@ impl Executor {
                         Ok(file) => file,
                     };
 
-                    // Read the file contents into a string, returns `io::Result<usize>`
+                    // Read the file contents into a string, returns `io::Result<usize>`.
                     let mut s = String::new();
                     match file.read_to_string(&mut s) {
                         Err(why) => {
@@ -185,13 +126,13 @@ impl Executor {
                         Ok(_) => print!("{} contains:\n{}", display, s),
                     }
 
-                    // Concactenate input to already existing input
+                    // Concactenate input to already existing input.
                     input = format!("{}\n{}", input, s);
                 
-                // Check if there is an output redirection
+                // Check if there is an output redirection.
                 } else if current_ch == OUTPUT_CH {
-                    // Check if the command is a valid file
-                    // It has to be a string with no whitespace
+                    // Check if the command is a valid file.
+                    // It has to be a string with no whitespace.
                     let arg: Vec<&str> = current_cmd.split(" ").collect();
                     if arg.len() > 1 {
                         let message = format!("output file is invalid: {}", current_cmd);
@@ -199,18 +140,17 @@ impl Executor {
                         return;
                     }
 
-                    // If it is a valid output destination, set the output file and bool
                     is_output_file = true;
                     output_file = current_cmd.clone();
 
-                // Check if there is an input redirection
+                // Check if there is an input redirection.
                 } else if current_ch == PIPE_CH {
-                    // Make sure there is no output file
+                    // Make sure there is no output file.
                     if !is_output_file {
                         is_output_pipe = true;
                     }
                     
-                    // Exit loop no matter what
+                    // Exit loop.
                     break;
                 }
 
@@ -218,7 +158,7 @@ impl Executor {
                 pipe_index += 1;
             }
 
-            // Spawn a command
+            // Spawn a command.
             let mut process = match Command::new(cl_arg_0)
                                             .stdin(Stdio::piped())
                                             .stdout(Stdio::piped())
@@ -232,30 +172,29 @@ impl Executor {
                 Ok(process) => process,
             };
 
-            // Handle the input for the process
+            // Handle the input for the process.
             {
                 // The `stdin` field has type `Option<PipeStream>`
                 // `take` will take the value out of an `Option`, leaving `None` in
                 // its place.
                 //
-                // Note that we take ownership of `stdin` here
-                let mut stdin = process.stdin.as_mut().unwrap();
+                // Note that we take ownership of `stdin` here.
+                let stdin = process.stdin.as_mut().unwrap();
                 let cl_input = input.clone();
 
-                // Write a string to the stdin of the command
-                // match stdin.write_all(b"PANGRAM") {
+                // Write a string to the stdin of the command.
                 let cl_input_bytes = input.into_bytes();
                 match stdin.write_all(&cl_input_bytes) {
-                    Err(why) => panic!("couldn't write to process stdin: {}", "why.desc"),
+                    Err(why) => panic!("couldn't write to process stdin: {}", why.description()),
                     Ok(_) => println!("wrote to stdin: {}", cl_input),
                 }
 
-                // `stdin` gets `drop`ed here, and the pipe is closed
-                // This is very important, otherwise `wc` wouldn't start processing the
-                // input we just sent
+                // `stdin` gets `drop`ed here, and the pipe is closed.
+                // This is very important, otherwise the program wouldn't 
+                // start processing the input we just sent.
             }
 
-            // Execute the command
+            // Execute the command.
             let current_output = match process.wait_with_output() {
                 Err(why) => {
                                 let message = format!("couldn't read commands stdout:{}",
@@ -266,14 +205,14 @@ impl Executor {
                 Ok(thing) => String::from_utf8(thing.stdout).expect("Not UTF-8")
             };
 
-            // Check why the loop ended
+            // Check why the loop ended.
 
-            // Check if there is an output file
+            // Check if there is an output file. Only write to the last file.
             if is_output_file {
                 let output_path = Path::new(output_file.as_str());
                 let display = output_path.display();
 
-                // Open a file in write-only mode, returns `io::Result<File>`
+                // Open a file in write-only mode, returns `io::Result<File>`.
                 let mut file = match File::create(&output_path) {
                     Err(why) => {
                                     let message = format!("couldn't create {}: {}",
@@ -285,12 +224,11 @@ impl Executor {
                     Ok(file) => file,
                 };
 
-                // Write the output string to `file`, returns `io::Result<()>`
-                let outcome = file.write_all(current_output.clone().as_bytes()).expect("Unable to write data");
+                // Write the output string to `file`, returns `io::Result<()>`.
+                file.write_all(current_output.clone().as_bytes()).expect("Unable to write data");
                 output = "".to_string();
-                is_output_pipe = false;
 
-                // Flush out the output
+                // Flush out the output.
                 break;
 
             // Check if there is a pipe output.
@@ -299,17 +237,18 @@ impl Executor {
             }            
         }
 
-        // If there is remaining output, then send the message out
+        // If there is remaining output, then send the message out.
         self.send_message(output);
     }
 
+    // run_single_cmd takes a single string input and runs it as one command.
     fn run_single_cmd(&mut self, cmd: String) {
-        // Get the program 
+        // Get the program.
         let cl = cmd.clone();
         let cl_trim = cl.trim().to_string();
         let argv: Vec<&str> = cl_trim.split(" ").collect();
 
-        // Check if its empty
+        // Check if its empty.
         if argv.len() == 0 {
             self.send_message("No command existed".to_string());
             return;
@@ -320,19 +259,19 @@ impl Executor {
             return;
         }
 
-        // Clone the command again to provide a copy to pass in
+        // Clone the command again to provide a copy to pass in.
         let cl_argv = argv.clone();
         let cl_arg_0 = argv[0].to_string().clone();
 
-        // Create the command struct
+        // Create the command struct.
         let mut exec = Command::new(cl_arg_0);
         let exec_args = exec.args(&cl_argv[1..]);
 
-        // Get the stdout of the command struct
+        // Get the stdout of the command struct.
         let output = exec_args.output().unwrap().stdout;
         let output_str = str::from_utf8(&output).unwrap();
 
-        // Set the stdin as the stdout
+        // Set the stdin as the stdout.
         self.send_message(output_str.to_string());
     }
 
@@ -341,9 +280,9 @@ impl Executor {
         Command::new("which").arg(cmd_path).status().unwrap().success()
     }
 
-    // send_message takes any message and sends it to a queue to display as output
+    // send_message takes any message and sends it to a queue to display as output.
     fn send_message(&mut self, msg: String) {
-        // Check if the send into the pipe worked
+        // Check if the send into the pipe worked.
         match self.tx_pipe.send(msg) {
             Ok(_) => {}
             Err(_e) => {}
@@ -356,19 +295,19 @@ impl Executor {
         return s;
     }
 
-    // split_pipe examines the full command and splits it into separate pieces for piping purposes
-    // Currently, it only handles the happy path of stuff
+    // split_pipe examines the full command and splits it into separate pieces for piping purposes.
+    // Currently, it only handles the happy path of stuff.
     // Its not that robust.
-    // It returns the command parts, piping directions, and if everything was successful or not. 
+    // It returns the command parts, piping directions, and the success. 
     fn split_pipe(&mut self) -> (Vec<String>, Vec<char>, bool) {
-        // Get a copy of the string input
+        // Get a copy of the string input.
         let str_cpy = self.current_cmd.clone();
 
-        // Define the piping characters
+        // Define the piping characters.
         let piping_regex = &[INPUT_CH, OUTPUT_CH, PIPE_CH];
 
-        // Read each character individually for the piping characters
-        // It doesn't handle the case if a piping character is in the quotes
+        // Read each character individually for the piping characters.
+        // It doesn't handle the case if a piping character is in the quotes.
         let mut piping_vec = vec![];
         for c in str_cpy.chars() {
             if piping_regex.contains(&c) {
@@ -376,7 +315,7 @@ impl Executor {
             }
         }
 
-        // Split up the full command by the piping characters
+        // Split up the full command by the piping characters.
         let mut cmd_parts = vec![];
         for part in str_cpy.split(&piping_regex[..]) {
             cmd_parts.push(part.to_string().trim().to_string());

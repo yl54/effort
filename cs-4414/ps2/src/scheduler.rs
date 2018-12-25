@@ -30,7 +30,6 @@ impl Scheduler {
         // Start the background process
         let h: thread::JoinHandle<String> = thread::spawn(move || {
             ex.run_cmd();
-            println!("Gash Stuff");
             "SUCCESS!".to_string()
         });
 

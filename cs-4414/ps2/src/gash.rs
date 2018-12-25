@@ -2,22 +2,18 @@
 // This represents the REPL layer of the shell.
 
 use executor::Executor;
-use getopts::Options;
 use scheduler::Scheduler;
 use std::env;
-use std::fmt::Display;
 use std::io::{self, Write};
-use std::process::Command;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
 use std::vec::Vec;
 
 pub struct Shell<'a> {
     cmd_prompt: &'a str,
     history_list: Vec<String>,
 
-    //       This will serve as the messages that are shown on the shell prompt
+    //       This will serve as the messages that are shown on the shell prompt.
     //       Q: Why does it need to be wrapped in an Option?
     pub tx_pipe: Sender<String>,
     pub rx_pipe: Option<Box<Receiver<String>>>,
@@ -43,7 +39,6 @@ impl <'a>Shell<'a> {
     // run is the main loop for the gash shell.
     pub fn run(&mut self) {
         let mut stdout = io::stdout();
-        let count = 0;
 
         loop {
             // TODO: Figure out how to make this a part of send_message
@@ -56,7 +51,7 @@ impl <'a>Shell<'a> {
             stdin.read_line(&mut raw_input).unwrap();
             let input = raw_input.trim();     
 
-            // Check if we need to exit or continue
+            // Check if we need to exit or continue.
             match input {
                 ""      =>  { continue; }
                 "exit" => { return; }
@@ -69,7 +64,7 @@ impl <'a>Shell<'a> {
             self.add_to_history(input.to_string());
             self.ex.set_current_cmd(input.to_string());
             
-            // Check if it's any custom type
+            // Check if it's any custom type.
             let argv: Vec<&str> = input.split(" ").collect();
             match argv[0] {
                 "cd" => { 
@@ -87,7 +82,7 @@ impl <'a>Shell<'a> {
                 _ => {}
             }
 
-            // Check if it is an asynchronous execution
+            // Check if it is an asynchronous execution.
             match argv[argv.len() - 1] {
                 "&" => {
                     self.sc.run_executor(self.ex.clone()); 
@@ -97,7 +92,7 @@ impl <'a>Shell<'a> {
         }
     }
 
-    // add_to_history adds the input to the history list
+    // add_to_history adds the input to the history list.
     fn add_to_history(&mut self, input: String) {
         let historical_copy = input.clone();
         self.history_list.push(historical_copy.to_string());
@@ -116,7 +111,8 @@ impl <'a>Shell<'a> {
             // println!("cd commmand failed.".to_string());
         }
 
-        let success: bool = env::set_current_dir(dest).is_ok();
+        // let success: bool = env::set_current_dir(dest).is_ok();
+        env::set_current_dir(dest).is_ok();
         // println!(format!("cd commmand status: {}", success));
 
         // println!("end cd commmand".to_string());
@@ -137,16 +133,8 @@ impl <'a>Shell<'a> {
         // println!("{}", "end history commmand".to_string());
     }
 
-    // plist lists the processes recorded by the scheduler
+    // plist lists the processes recorded by the scheduler.
     fn plist(&mut self) {
         self.sc.show_process_list();
     }
-
-    // TODO: Add process list handling.
-
-    // TODO: Add background process delete
-
-    // TODO: Add background process signal sending
-
-    // TODO: Add piping handling
 }
