@@ -6,6 +6,7 @@ use std::error::Error;
 use std::fmt::Display;
 use std::fs::File;
 use std::io::{self, Read, Write};
+use std::io::{BufRead, BufReader, BufWriter};
 use std::path::Path;
 use std::process::{Command, Stdio};
 use std::str;
@@ -113,14 +114,6 @@ impl Executor {
         // Check if the index is less than length
         while cmd_index < cmd_len - 1 {
             let cmd_cl = cmd_parts[cmd_index].clone();
-            
-            // Check if the command exists. This string at this index should always be on a command, never file
-            // NOTE: f.txt | grep is not a thing
-            if !self.path_cmd_exists(cmd_cl.as_str()) {
-                let message = format!("Nothing exists for this command: {}", cmd_cl);
-                self.send_message(message);
-                return;
-            }
 
             // Check if there is anything in the pipe
             if cmd_index >= pipe_len {
@@ -133,19 +126,13 @@ impl Executor {
             let cl_arg_0 = argv[0].to_string().clone();
             let cl_argv = argv.clone();
 
-            // Spawn a command
-            let process = match Command::new(cl_arg_0)
-                                        .stdin(Stdio::piped())
-                                        .stdout(Stdio::piped())
-                                        .args(&cl_argv[1..])
-                                        .spawn() {
-                Err(why) => {
-                                let message = format!("couldn't spawn wc: {}", why.description());
-                                self.send_message(message);
-                                return;
-                            },
-                Ok(process) => process,
-            };
+            // Check if the command exists. This string at this index should always be on a command, never file
+            // NOTE: f.txt | grep is not a thing
+            if !self.path_cmd_exists(cl_arg_0.as_str()) {
+                let message = format!("Nothing exists for this command: {}", cl_arg_0);
+                self.send_message(message);
+                return;
+            }
 
             // Keep track of the input.
             // Multiple input characters means concactenate to the string for input
@@ -165,7 +152,7 @@ impl Executor {
             let mut is_output_pipe = false;
 
             // Do a while loop over the pipe vec
-            while cmd_index < cmd_len && !is_output_pipe {
+            while cmd_index < cmd_len - 1 && !is_output_pipe {
                 cmd_index += 1;
                 let current_cmd = cmd_parts[cmd_index].clone();
                 let current_ch = pipe[pipe_index];
@@ -181,6 +168,7 @@ impl Executor {
                         self.send_message(message);
                         return;
                     }
+
                     // Open the path in read-only mode, returns `io::Result<File>`
                     let mut file = match File::open(&current_path) {
                         Err(why) => {
@@ -237,20 +225,68 @@ impl Executor {
                 pipe_index += 1;
             }
 
-            // Set the input for the command
-            // process.stdin().get_mut_ref().write_str(input);
+            // Spawn a command
+            let mut process = match Command::new(cl_arg_0)
+                                        .stdin(Stdio::piped())
+                                        .stdout(Stdio::piped())
+                                        .args(&cl_argv[1..])
+                                        .spawn() {
+                Err(why) => {
+                                let message = format!("couldn't spawn wc: {}", why.description());
+                                println!("{}", message);
+                                return;
+                            },
+                Ok(process) => process,
+            };
+
+
+            // Handle the input for the process.
+            // Q: why does this need to be in its own scope
+            {
+                // The `stdin` field has type `Option<PipeStream>`
+                // `take` will take the value out of an `Option`, leaving `None` in
+                // its place.
+                //
+                // Note that we take ownership of `stdin` here
+                let mut stdin = process.stdin.as_mut().unwrap();
+                let cl_input = input.clone();
+
+                // Write a string to the stdin of the command
+                // match stdin.write_all(b"PANGRAM") {
+                let input_bytes = input.into_bytes();
+                match stdin.write_all(&input_bytes) {
+                    Err(why) => panic!("couldn't write to process stdin: {}", "why.desc"),
+                    Ok(_) => println!("wrote to stdin: {}", cl_input),
+                }
+
+                // `stdin` gets `drop`ed here, and the pipe is closed
+                // This is very important, otherwise `wc` wouldn't start processing the
+                // input we just sent
+                println!("made it here 1:");
+            }
+
+            // TODO: Fails here if there is input
+            
 
             // Execute the command
             let mut stdout_str = String::new();
-            match process.stdout.unwrap().read_to_string(&mut stdout_str) {
+            println!("made it here 2:");
+            
+            let current_output = match process.wait_with_output() {
                 Err(why) => {
                                 let message = format!("couldn't read commands stdout:{}",
                                                                 why.description());
-                                self.send_message(message);
-                                return;
+                                println!("{}", message);
+                                stdout_str.clone()
                             },
-                Ok(_) => print!("wc responded with:\n{}", stdout_str),
-            }
+                Ok(thing) => String::from_utf8(thing.stdout).expect("Not UTF-8")
+            };
+
+            println!("current_output: {}", current_output);
+
+            output = current_output;
+
+            println!("made it here 3:");
 
             // Check why the loop ended
             // If there was an output file, then write to that file.
