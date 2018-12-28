@@ -7,7 +7,6 @@ use std::net::{TcpListener, TcpStream};
 use std::str;
 use std::sync::{Mutex, Arc};
 use utils;
-// File to return to users
 
 // Server address
 const SERVER_ADDR: &str = "127.0.0.1";
@@ -16,19 +15,27 @@ const SERVER_PORT: &str = "20001";
 // Tip: For complex things like function parameters, denote with a type.
 type Callback = fn(&mut TcpStream);
 
+struct Handler {
+    // The path of the handler
+    path: String,
+
+    // The function for the handler
+    handler: Callback,
+
+    // The number of times this handler has been requested
+    count: Arc<Mutex<u16>>,
+}
+
 // Webserver struct
 pub struct Webserver {
     // Handle to the tcp listener
     listener: TcpListener,
 
-    // Hashmap for handler functions. String to function handler     
-    handlers: HashMap<String, Callback>,
+    // Hashmap for handler functions. The string path to handler struct    
+    handlers: HashMap<String, Handler>,
 
     // Count of how many requests total requests have been served
     requests_total: Arc<Mutex<u16>>,
-
-    // Count of how many requests total valid requests have been served
-    requests_valid: Arc<Mutex<u16>>,
 }
 
 // Webserver implementation
@@ -46,7 +53,6 @@ impl Webserver {
             listener: listener,
             handlers: HashMap::new(),
             requests_total: Arc::new(Mutex::new(0)),
-            requests_valid: Arc::new(Mutex::new(0)),
         };
     }
 
@@ -54,8 +60,14 @@ impl Webserver {
     pub fn register_handler(&mut self, path: String, handler: Callback) {
         let cl_path = path.clone();
 
+        let h = Handler {
+            path: path,
+            handler: handler,
+            count: Arc::new(Mutex::new(0)),
+        };
+
         // Add the path + handler function to the hashmap
-        self.handlers.insert(cl_path, handler);
+        self.handlers.insert(cl_path, h);
     }
 
     // Listen for requests and handle requests.
@@ -85,14 +97,16 @@ impl Webserver {
                         },
                         Ok(body) => body,
                     };
-
                     
                     // Extract the path from the body.
                     let path = utils::extract_path(&body).to_string();
 
                     match self.handlers.get(&path) {
-                        Some(handler) => { 
-                            handler(&mut stream); 
+                        Some(h) => { 
+                            (h.handler)(&mut stream);
+                            let mut c = h.count.lock().unwrap();
+                            *c += 1;
+                            println!("h.count: {}", c);
                         },
                         None => {
                             handlers::handle_default(&mut stream); 
