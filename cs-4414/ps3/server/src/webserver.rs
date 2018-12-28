@@ -98,28 +98,8 @@ impl Webserver {
                             handlers::handle_default(&mut stream); 
                         },
                     }
-
-                    /*
-                    // Check if the handler exists for the path.
-                    if self.handlers.contains_key(&path) {
-                        // Increase the value of the int the reference is pointing to.
-                        let mut num_valid = self.requests_valid.lock().unwrap();
-                        *num_valid += 1;
-
-                        // Execute the handler with the stream
-                        // let handler = self.handlers.get(&path);
-
-                        // handler(&mut stream);
-
-                    } else {
-                        // Execute the default handler
-                        handler::handle_default(&mut stream);
-                    }
-                    */
                 }
             }
         }
     }
-
-    
 }
