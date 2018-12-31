@@ -35,7 +35,8 @@ impl Executor {
         self.current_cmd = input.clone();
     }
 
-    // run_cmd gets the command input and executes it.
+    // run_cmd gets the command input and executes it. 
+    // It returns either an error message or the output of the program.
     pub fn run_cmd(&mut self) -> String {
         // Split up the command into piped pieces.
         let (cmd_parts, pipe, ok) = self.split_pipe();
