@@ -1,12 +1,13 @@
 // This file contains a webserver.
 
-use handlers;
 use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::str;
 use std::sync::{Mutex, Arc};
-use utils;
+
+use server::handlers;
+use server::utils;
 
 // Server address
 const SERVER_ADDR: &str = "127.0.0.1";
@@ -100,13 +101,11 @@ impl Webserver {
                     
                     // Extract the path from the body.
                     let path = utils::extract_path(&body).to_string();
-
                     match self.handlers.get(&path) {
                         Some(h) => { 
                             (h.handler)(&mut stream);
                             let mut c = h.count.lock().unwrap();
                             *c += 1;
-                            println!("h.count: {}", c);
                         },
                         None => {
                             handlers::handle_default(&mut stream); 

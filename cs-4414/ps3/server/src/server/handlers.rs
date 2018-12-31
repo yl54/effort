@@ -1,6 +1,6 @@
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-use utils;
+use server::utils;
 
 // handle_default reads the path and gives a response. This is the default handler
 pub fn handle_default(stream: &mut TcpStream) {

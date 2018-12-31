@@ -1,8 +1,9 @@
-use webserver::Webserver;
+pub mod gash;
+pub mod scheduler;
+pub mod server;
 
-pub mod handlers;
-pub mod utils;
-pub mod webserver;
+use server::handlers;
+use server::webserver::Webserver;
 
 fn main() {
     // Create a webserver.
