@@ -215,8 +215,6 @@ impl Executor {
                 Ok(thing) => String::from_utf8(thing.stdout).expect("Not UTF-8")
             };
 
-            // Check why the loop ended.
-
             // Check if there is an output file. Only write to the last file.
             if is_output_file {
                 let output_path = Path::new(output_file.as_str());
