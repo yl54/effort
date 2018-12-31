@@ -1,14 +1,3 @@
-//
-// gash.rs
-//
-// Starting code for PS2
-// Running on Rust 1+
-//
-// University of Virginia - cs4414 Spring 2014
-// Weilin Xu, David Evans
-// Version 0.4
-//
-
 use std::thread;
 
 pub mod gash;
