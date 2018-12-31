@@ -41,7 +41,6 @@ impl <'a>Shell<'a> {
         let mut stdout = io::stdout();
 
         loop {
-            // TODO: Figure out how to make this a part of send_message
             stdout.write(self.cmd_prompt.as_bytes()).unwrap();
             stdout.flush().unwrap();
 
