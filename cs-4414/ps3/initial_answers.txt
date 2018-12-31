@@ -1,0 +1,24 @@
+answers
+
+how many tasks are running before the first request arrives?
+- create a new webserver
+- setup tcp listener
+- run a thread for an infinite loop for listening to requests
+- run another infinite loop to get enqueued requests
+
+what are all the tasks that are involves in handling a request?
+- get new safe references to the sender and reciever handlers
+- increase the visitor count
+- check the request for a split in ' '
+- get the current working directory
+- pick a page to respond to the user
+    - respond immediately for counter, error and dynamic pages
+    - enqueue a request for static file
+- save the stream for the response later
+- enqueue the request
+- dequeue the request eventually
+- respond with a static file later
+
+if a series of requests, r1, r2, ..., rn arrives in order, what can you say about the order in which the server will respond to them?
+- if its looking for a counter, error, or dynamic page, it will be in order
+- it looks like everything is inourder at the moment
