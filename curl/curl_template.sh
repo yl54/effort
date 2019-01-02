@@ -14,7 +14,7 @@ body="{\"username\":\"${username}\", \"localhost_url\":\"${localhost_url}\"}";
 
 # Send the curl request somewhere. An example is below 
 # curl \
-#    -H "username: ${key}" \
+#    -H "username: ${username}" \
 #    -H "apikey: application/json" \
 #    -H "Content-Type: application/json" \
 #    -X POST -d "${body}" \
