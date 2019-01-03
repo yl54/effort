@@ -52,7 +52,7 @@ impl Executor {
 
         // Check if there is only one command that exists.
         if cmd_len == 1 {
-            self.run_single_cmd(cmd_parts[0].clone());
+            return self.run_single_cmd(cmd_parts[0].clone());
         }
 
         // Keep track of which index of cmd part its at.
@@ -254,7 +254,7 @@ impl Executor {
     }
 
     // run_single_cmd takes a single string input and runs it as one command.
-    fn run_single_cmd(&mut self, cmd: String) {
+    fn run_single_cmd(&mut self, cmd: String) -> String {
         // Get the program.
         let cl = cmd.clone();
         let cl_trim = cl.trim().to_string();
@@ -262,13 +262,17 @@ impl Executor {
 
         // Check if its empty.
         if argv.len() == 0 {
-            self.send_message("No command existed".to_string());
-            return;
+            let msg = format!("{}", "No command existed".to_string());
+            let cl_msg = msg.clone();
+            self.send_message(msg);
+            return cl_msg;
         }
 
         if !self.path_cmd_exists(argv[0]) {
-            self.send_message("Custom command does not exist.".to_string());
-            return;
+            let msg = format!("{}", "Custom command does not exist".to_string());
+            let cl_msg = msg.clone();
+            self.send_message(msg);
+            return cl_msg;
         }
 
         // Clone the command again to provide a copy to pass in.
@@ -285,6 +289,8 @@ impl Executor {
 
         // Set the stdin as the stdout.
         self.send_message(output_str.to_string());
+
+        return output_str.to_string();
     }
 
     // path_cmd_exists checks if the command exists on PATH.

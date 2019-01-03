@@ -2,6 +2,8 @@ pub mod gash;
 pub mod scheduler;
 pub mod server;
 
+extern crate regex;
+
 use server::handlers;
 use server::webserver::Webserver;
 
@@ -12,6 +14,9 @@ fn main() {
     // Register some handlers.
     w.register_handler("great".to_string(), handlers::handle_great);
     w.register_handler("trash".to_string(), handlers::handle_trash);
+    w.register_handler("utility/date".to_string(), handlers::handle_utility_date);
+
+    // TODO: Add a favicon
 
     // Listen on the webserver.
     w.listen();
