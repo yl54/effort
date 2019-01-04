@@ -1,6 +1,7 @@
 // This file contains a webserver.
 
 use std::collections::HashMap;
+use std::error::Error;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::str;
@@ -81,7 +82,7 @@ impl Webserver {
 
             match stream {
                 // Handle if an error.
-                Err(_) => (),
+                Err(err) => debug!("Couldn't read the stream: {}", err.description()),
 
                 // Handle if its a Result object.
                 Ok(mut stream) => {
@@ -93,7 +94,7 @@ impl Webserver {
                     // Extract the body from the stream.
                     let body: &str = match str::from_utf8(&buf) {
                         Err(err) => {
-                            debug!("Received request error: {}", err);
+                            debug!("Received request error: {}", err.description());
                             return;
                         },
                         Ok(body) => body,

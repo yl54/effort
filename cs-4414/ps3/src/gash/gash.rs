@@ -1,13 +1,15 @@
 // This file has the implementation of the gash shell.
 // This represents the REPL layer of the shell.
 
-use gash::executor::Executor;
-use scheduler::Scheduler;
 use std::env;
+use std::error::Error;
 use std::io::{self, Write};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::vec::Vec;
+
+use gash::executor::Executor;
+use scheduler::Scheduler;
 
 pub struct Shell<'a> {
     cmd_prompt: &'a str,

@@ -121,9 +121,9 @@ impl Executor {
 
                     // Open the path in read-only mode, returns `io::Result<File>`.
                     let mut file = match File::open(&current_path) {
-                        Err(why) => {
+                        Err(err) => {
                                         let msg = format!("couldn't open {}: {}", display,
-                                                                   why.description());
+                                                                   err.description());
                                         let cl_msg = msg.clone();
                                         self.send_message(msg);
                                         return cl_msg;
@@ -134,9 +134,9 @@ impl Executor {
                     // Read the file contents into a string, returns `io::Result<usize>`.
                     let mut s = String::new();
                     match file.read_to_string(&mut s) {
-                        Err(why) => {
+                        Err(err) => {
                                         let msg = format!("couldn't read {}: {}", display,
-                                                                   why.description());
+                                                                   err.description());
                                         let cl_msg = msg.clone();
                                         self.send_message(msg);
                                         return cl_msg;
@@ -183,8 +183,8 @@ impl Executor {
                                             .stdout(Stdio::piped())
                                             .args(&cl_argv[1..])
                                             .spawn() {
-                Err(why) => {
-                                let msg = format!("couldn't spawn wc: {}", why.description());
+                Err(err) => {
+                                let msg = format!("couldn't spawn wc: {}", err.description());
                                 let cl_msg = msg.clone();
                                 self.send_message(msg);
                                 return cl_msg;
@@ -205,7 +205,7 @@ impl Executor {
                 // Write a string to the stdin of the command.
                 let cl_input_bytes = input.into_bytes();
                 match stdin.write_all(&cl_input_bytes) {
-                    Err(why) => panic!("couldn't write to process stdin: {}", why.description()),
+                    Err(err) => panic!("couldn't write to process stdin: {}", err.description()),
                     Ok(_) => debug!("wrote to stdin: {}", cl_input),
                 }
 
@@ -216,9 +216,9 @@ impl Executor {
 
             // Execute the command.
             let current_output = match process.wait_with_output() {
-                Err(why) => {
-                                let msg = format!("couldn't read commands stdout:{}",
-                                                                why.description());
+                Err(err) => {
+                                let msg = format!("couldn't read commands stdout: {}",
+                                                                err.description());
                                 let cl_msg = msg.clone();
                                 self.send_message(msg);
                                 return cl_msg;
@@ -233,10 +233,10 @@ impl Executor {
 
                 // Open a file in write-only mode, returns `io::Result<File>`.
                 let mut file = match File::create(&output_path) {
-                    Err(why) => {
+                    Err(err) => {
                                     let msg = format!("couldn't create {}: {}",
                                                                display,
-                                                               why.description());
+                                                               err.description());
                                     let cl_msg = msg.clone();
                                     self.send_message(msg);
                                     return cl_msg;
