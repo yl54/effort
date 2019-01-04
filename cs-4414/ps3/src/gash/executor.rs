@@ -18,15 +18,25 @@ const PIPE_CH: char = '|';
 #[derive(Clone, Debug)]
 pub struct Executor {
     current_cmd: String,
-    tx_pipe: Sender<String>,
+    is_async_output_send: bool,
+    tx_pipe: Option<Box<Sender<String>>>,
 }
 
 // An Executor takes a string input and executes the shell command.
 impl Executor {
-    pub fn new(tx: Sender<String>) -> Executor {
+    pub fn new_with_sender(tx: Sender<String>) -> Executor {
         Executor {
             current_cmd: "".to_string(),
-            tx_pipe: tx,
+            is_async_output_send: true,
+            tx_pipe: Some(Box::new(tx)),
+        }
+    }
+
+    pub fn new_without_sender() -> Executor {
+        Executor {
+            current_cmd: "".to_string(),
+            is_async_output_send: false,
+            tx_pipe: None,
         }
     }
 
@@ -300,10 +310,16 @@ impl Executor {
 
     // send_message takes any message and sends it to a queue to display as output.
     fn send_message(&mut self, msg: String) {
+        // Check if this executor is an async output.
+        if !self.is_async_output_send {
+            debug!("{}", msg);
+            return;
+        }
+
         // Check if the send into the pipe worked.
-        match self.tx_pipe.send(msg) {
-            Ok(_) => {}
-            Err(_e) => {}
+        match self.tx_pipe.clone().unwrap().send(msg) {
+            Ok(_) => { debug!("Message send successfully."); }
+            Err(err) => { debug!("Message send failed: {}", err.description()); }
         };
     }
 

@@ -31,7 +31,7 @@ impl <'a>Shell<'a> {
             history_list:    vec![],
             tx_pipe: tx,
             rx_pipe: Some(Box::new(rx)),
-            ex: Executor::new(tx_ref),
+            ex: Executor::new_with_sender(tx_ref),
             sc: Scheduler::new(),
         }
     }

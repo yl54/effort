@@ -79,13 +79,11 @@ fn write_utility_stream(path: &str, stream: &mut TcpStream) {
             
             // Get the command from the regex.
             let cmd = caps.get(1).unwrap().as_str().to_string();
-
-            // Initiate an executor. The mpsc are empty.
-            let (tx, rx): (Sender<String>, Receiver<String>) = mpsc::channel();
-            let tx_ref = tx.clone();
-            let mut ex = Executor::new(tx_ref);
-            ex.set_current_cmd(cmd.clone());
             debug!("cmd: {}", cmd.clone());
+
+            // Initiate an executor and execute.
+            let mut ex = Executor::new_without_sender();
+            ex.set_current_cmd(cmd.clone());
 
             // Execute the command and get the output.
             let gash_output = ex.run_cmd();
