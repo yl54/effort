@@ -95,7 +95,7 @@ impl Webserver {
                     let body: &str = match str::from_utf8(&buf) {
                         Err(err) => {
                             debug!("Received request error: {}", err.description());
-                            return;
+                            continue;
                         },
                         Ok(body) => body,
                     };
