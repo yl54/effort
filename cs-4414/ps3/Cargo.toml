@@ -5,3 +5,4 @@ authors = ["randyl <randyl@unity3d.com>"]
 
 [dependencies]
 regex = "1"
+log = "0.4"

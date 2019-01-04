@@ -92,8 +92,8 @@ impl Webserver {
 
                     // Extract the body from the stream.
                     let body: &str = match str::from_utf8(&buf) {
-                        Err(error) => {
-                            println!("Received request error:\n{}", error);
+                        Err(err) => {
+                            debug!("Received request error: {}", err);
                             return;
                         },
                         Ok(body) => body,

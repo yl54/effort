@@ -20,7 +20,6 @@ pub fn get_file_contents(file_path: &str) -> String {
 pub fn extract_path(request: &str) -> &str {
     // Split the string by new line
     let lines: Vec<&str> = request.split("\n").collect();
-    debug_vec_str(lines.clone());
 
     // Check if the vec is valid.
     if lines.len() <= 0 {
@@ -36,14 +35,14 @@ pub fn extract_path(request: &str) -> &str {
 
     // Check if the vec is valid.
     if spl_len <= 0 || spl_len != 3 {
-        println!("part does not match format. it is {} parts long.", spl_len);
+        debug!("Part does not match format. It is {} parts long.", spl_len);
         return "";
     }
 
     // Get the second string
     // take the &str in the middle, ignore the first character
     let part: &str = &spl[1][1..];
-    println!("part: {}", part);
+    debug!("part: {}", part);
 
     // Try to match and return.
     return part;
@@ -51,6 +50,6 @@ pub fn extract_path(request: &str) -> &str {
 
 fn debug_vec_str(lines: Vec<&str>) {
     for l in &lines {
-        println!("{}", l);
+        debug!("{}", l);
     }
 }

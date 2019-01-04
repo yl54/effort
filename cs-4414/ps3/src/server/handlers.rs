@@ -69,15 +69,14 @@ fn write_utility_stream(path: &str, stream: &mut TcpStream) {
 
     // Read each line from the file.
     for line in BufReader::new(file).lines() {
-        let l = line.expect("line not found");
-        println!("{}", l);
-
+        let l = line.expect("line not found");        
         let mut output_line = l.clone();
+        debug!("l: {}", l);
     
         // Look for the regex matching the html shell command.
         for caps in re.captures_iter(&l.to_string()) {
-            println!("{}", l);
-
+            debug!("captured l: {}", l);
+            
             // Get the command from the regex.
             let cmd = caps.get(1).unwrap().as_str().to_string();
 
@@ -86,11 +85,11 @@ fn write_utility_stream(path: &str, stream: &mut TcpStream) {
             let tx_ref = tx.clone();
             let mut ex = Executor::new(tx_ref);
             ex.set_current_cmd(cmd.clone());
-            println!("cmd: {}", cmd.clone());
+            debug!("cmd: {}", cmd.clone());
 
             // Execute the command and get the output.
             let gash_output = ex.run_cmd();
-            println!("gash_output: {}", gash_output.clone());
+            debug!("gash_output: {}", gash_output.clone());
 
             // Replace the shtml command with the output.
             output_line = re.replace(&output_line, gash_output.as_str()).to_string();

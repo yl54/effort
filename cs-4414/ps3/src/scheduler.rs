@@ -74,7 +74,7 @@ impl Scheduler {
 
         // Show the process list
         for p_info in &p_info_list {
-            println!("{}", p_info);
+            debug!("{}", p_info);
         }
     }
 

@@ -2,6 +2,8 @@ pub mod gash;
 pub mod scheduler;
 pub mod server;
 
+#[macro_use]
+extern crate log;
 extern crate regex;
 
 use server::handlers;

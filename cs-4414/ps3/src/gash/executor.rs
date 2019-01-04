@@ -196,7 +196,7 @@ impl Executor {
                 let cl_input_bytes = input.into_bytes();
                 match stdin.write_all(&cl_input_bytes) {
                     Err(why) => panic!("couldn't write to process stdin: {}", why.description()),
-                    Ok(_) => println!("wrote to stdin: {}", cl_input),
+                    Ok(_) => debug!("wrote to stdin: {}", cl_input),
                 }
 
                 // `stdin` gets `drop`ed here, and the pipe is closed.

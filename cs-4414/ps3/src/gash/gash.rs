@@ -99,7 +99,7 @@ impl <'a>Shell<'a> {
 
     // cd executes the cd bash command. It is assumed that this will not be used asynchronously. If it needs to, then add it to the executor.
     fn cd(&mut self, _args: &[&str]) {
-        // println!(format!("start cd commmand: {:#?}", _args));
+        debug!("start cd commmand: {:#?}", _args);
         let (dest, success) = match _args.len() {
             0 => { ("", true) },
             1 => { (_args[0], true) },
@@ -107,29 +107,29 @@ impl <'a>Shell<'a> {
         };
 
         if !success {
-            // println!("cd commmand failed.".to_string());
+            debug!("cd commmand failed.");
         }
 
-        // let success: bool = env::set_current_dir(dest).is_ok();
-        env::set_current_dir(dest).is_ok();
-        // println!(format!("cd commmand status: {}", success));
+        debug!("Start cd commmand: {:#?}", _args);
+        let success: bool = env::set_current_dir(dest).is_ok();
+        debug!("cd commmand status: {}", success);
 
-        // println!("end cd commmand".to_string());
+        debug!("End cd commmand.");
     }
 
     // history executes the history bash command. It is assumed that this will not be used asynchronously. If it needs to, then add this and the history_list to the executor.
     fn history(&mut self) {
-        // println!("{}", "start history commmand".to_string());
+        debug!("Start history commmand.");
 
-        // Clone each history value dedicated for letting the println function borrow it.
+        // Clone each history value dedicated for letting the debug function borrow it.
         // Stolen from fletcher
         let mut results = vec![];
         for history_record in &self.history_list {
             results.push(history_record.clone());
         }
-        println!("{}", format!("{:#?}", results));
+        debug!("{:#?}", results);
 
-        // println!("{}", "end history commmand".to_string());
+        debug!("end history commmand");
     }
 
     // plist lists the processes recorded by the scheduler.
