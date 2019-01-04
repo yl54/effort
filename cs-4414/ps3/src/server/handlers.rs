@@ -81,7 +81,7 @@ fn write_utility_stream(path: &str, stream: &mut TcpStream) {
             let cmd = caps.get(1).unwrap().as_str().to_string();
             debug!("cmd: {}", cmd.clone());
 
-            // Initiate an executor and execute.
+            // Initialize the executor.
             let mut ex = Executor::new_without_sender();
             ex.set_current_cmd(cmd.clone());
 
