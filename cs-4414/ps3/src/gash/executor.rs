@@ -14,16 +14,21 @@ const INPUT_CH: char = '<';
 const OUTPUT_CH: char = '>';
 const PIPE_CH: char = '|';
 
-// Executor struct
+// Executors read String inputs, execute shell commands, and return output.
 #[derive(Clone, Debug)]
 pub struct Executor {
+    // current_cmd is the command loaded up to execute.
     current_cmd: String,
+
+    // is_async_output_send indicates if there should be asynchronous output being sent out.
     is_async_output_send: bool,
+
+    // tx_pipe is a asynchronous output producer.  
     tx_pipe: Option<Box<Sender<String>>>,
 }
 
-// An Executor takes a string input and executes the shell command.
 impl Executor {
+    // new_with_sender creates an Executor with an output producer.
     pub fn new_with_sender(tx: Sender<String>) -> Executor {
         Executor {
             current_cmd: "".to_string(),
@@ -32,6 +37,7 @@ impl Executor {
         }
     }
 
+    // new_without_sender creates an Executor without an output producer.
     pub fn new_without_sender() -> Executor {
         Executor {
             current_cmd: "".to_string(),

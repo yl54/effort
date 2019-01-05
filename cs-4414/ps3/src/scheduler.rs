@@ -3,16 +3,15 @@
 use std::fmt::{Display, Formatter, Result};
 use std::thread;
 
-// Struct for scheduler
+// Schedulers schedules and records asynchronous processes that are running.
 pub struct Scheduler {
-    // list of process struct
+    // process_list is a record of processes that have been launched by the scheduler.
     process_list: Vec<Process>,
 
-    // process count, for id
+    // process_count indicates how many processes are running at the moment.
     process_count: u16,
 }
 
-// scheduler implementation
 impl Scheduler {
     pub fn new() -> Self {
         Scheduler {
@@ -21,7 +20,7 @@ impl Scheduler {
         }
     }
 
-    // function to get the process metadata. It excludes the handler
+    // get_process_list gets a list of the processes and their metadata.
     fn get_process_list(&mut self) -> Vec<ProcessInfo> {
         let mut p_list: Vec<ProcessInfo> = vec![];
 
@@ -38,7 +37,7 @@ impl Scheduler {
         return p_list;
     }
 
-    // function to show a list of processes attached with the scheduler
+    // show_process_list shows a list of processes attached with the scheduler.
     pub fn show_process_list(&mut self) {
         // Get the process list 
         let p_info_list = self.get_process_list();
@@ -49,7 +48,7 @@ impl Scheduler {
         }
     }
 
-    // 
+    // record_process record and persits the process into the scheduler.
     pub fn record_process(&mut self, cmd: String, h: thread::JoinHandle<String>) {
         // Record the process
         let p_info = ProcessInfo {
@@ -61,21 +60,21 @@ impl Scheduler {
             handler: h,
         };
 
-        // Add the process to the process list
+        // Add the process to the process list.
         self.process_list.push(p);
         
-        // Update the process count for the next process
+        // Increment the process count.
         self.process_count += 1;
     }
 }
 
-// Process represents a background process started from some external input
+// Processes represents a background process started from some external input.
 struct Process {
     p_info: ProcessInfo,
     handler: thread::JoinHandle<String>,
 }
 
-// ProcessInfo contains a processes metadata
+// ProcessInfo contains a processes metadata.
 struct ProcessInfo {
     id: u16,
     cmd: String,

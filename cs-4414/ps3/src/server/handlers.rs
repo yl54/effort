@@ -41,11 +41,12 @@ fn write_stream(file_path: &str, stream: &mut TcpStream) {
     // Create the full http response based off of the page
     let html_file_contents: String = utils::get_file_contents(file_path);
 
-    // Return the string of the http response
+    // Create a new response string and write to stream.
     let response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n{}\r\n", html_file_contents);
     stream.write(response.as_bytes()).unwrap();
 }
 
+// handle_utility_date gets the utility date page and shows it to the user.
 pub fn handle_utility_date(stream: &mut TcpStream) {
     // Pick the page based off of the request.
     let path: &str = "files/utility/date.shtml";
@@ -54,7 +55,7 @@ pub fn handle_utility_date(stream: &mut TcpStream) {
     write_utility_stream(path, stream);
 }
 
-// handle_utility handles paths through `utility`.
+// write_utility_stream handles paths through `utility`.
 // These return dynamic shtml pages, usually running some shell command.
 fn write_utility_stream(path: &str, stream: &mut TcpStream) {
     // Get the file handle.
@@ -100,8 +101,7 @@ fn write_utility_stream(path: &str, stream: &mut TcpStream) {
         output_content = format!("{}\n{}", output_content, output_line);
     }
 
-    // Create a new response string.
-    // Write to stream.
+    // Create a new response string and write to stream.
     let response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n{}\r\n", output_content);
     stream.write(response.as_bytes()).unwrap();
 }

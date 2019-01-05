@@ -5,7 +5,7 @@ use std::error::Error;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::str;
-use std::sync::{Mutex, Arc};
+use std::sync::{Arc, Mutex};
 
 use server::handlers;
 use server::utils;
@@ -18,39 +18,36 @@ const SERVER_PORT: &str = "20001";
 type Callback = fn(&mut TcpStream);
 
 struct Handler {
-    // The path of the handler
+    // path is the url path.
     path: String,
 
-    // The function for the handler
+    // handler is the function to execute.
     handler: Callback,
 
-    // The number of times this handler has been requested
+    // count is the number of times this handler has been requested.
     count: Arc<Mutex<u16>>,
 }
 
-// Webserver struct
+// Webserver 
 pub struct Webserver {
-    // Handle to the tcp listener
+    // tcp_listener is the handle to the request listener.
     listener: TcpListener,
 
-    // Hashmap for handler functions. The string path to handler struct    
+    // handlers is a hashmap from the url path to handler functions.    
     handlers: HashMap<String, Handler>,
 
-    // Count of how many requests total requests have been served
+    // requests_total is the count of how many total requests have been recieved.
     requests_total: Arc<Mutex<u16>>,
 }
 
-// Webserver implementation
 impl Webserver {
     // New function
     pub fn new() -> Webserver {
         // Create a tcp listener.
         // Bind the listener to some address. Use the local address for now.
-        // Tcp listeners are the default thing to listen to requests.
         let full_address = format!("{}{}{}", SERVER_ADDR, ":", SERVER_PORT);
         let listener = TcpListener::bind(full_address).expect("Could not bind to address.");       
 
-        // Return the Webserver. 
         return Webserver {
             listener: listener,
             handlers: HashMap::new(),
@@ -68,11 +65,11 @@ impl Webserver {
             count: Arc::new(Mutex::new(0)),
         };
 
-        // Add the path + handler function to the hashmap
+        // Add the path + handler combination.
         self.handlers.insert(cl_path, h);
     }
 
-    // Listen for requests and handle requests.
+    // listen listens for requests and executes the proper handler if possible.
     pub fn listen(&mut self) {
         // Start the listener infinite loop.
         for stream in self.listener.incoming() {

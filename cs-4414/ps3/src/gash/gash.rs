@@ -11,16 +11,25 @@ use std::vec::Vec;
 use gash::executor::Executor;
 use gash::gash_scheduler::GashScheduler;
 
+// Shells run a REPL for bash commands.
 pub struct Shell<'a> {
+    // cmd_prompt is the visual cue for users to type in their own input.
     cmd_prompt: &'a str,
+
+    // history_list contains a list of the commands that have been run.
     history_list: Vec<String>,
 
-    //       This will serve as the messages that are shown on the shell prompt.
-    //       Q: Why does it need to be wrapped in an Option?
+    // tx_pipe is the Producer for asynchronous output.
     pub tx_pipe: Sender<String>,
+
+    // tx_pipe is the Consumer for asynchronous output.
+    // Q: Why does it need to be wrapped in an Option?
     pub rx_pipe: Option<Box<Receiver<String>>>,
 
+    // ex is the Executor instance to run.
     ex: Executor,
+
+    // gsc schedules asynchronous commands.
     gsc: GashScheduler,
 }
 
@@ -38,7 +47,7 @@ impl <'a>Shell<'a> {
         }
     }
 
-    // run is the main loop for the gash shell.
+    // run is the main REPL for the Gash shell.
     pub fn run(&mut self) {
         let mut stdout = io::stdout();
 
@@ -99,7 +108,7 @@ impl <'a>Shell<'a> {
         self.history_list.push(historical_copy.to_string());
     }
 
-    // cd executes the cd bash command. It is assumed that this will not be used asynchronously. If it needs to, then add it to the executor.
+    // cd executes the cd bash command.
     fn cd(&mut self, _args: &[&str]) {
         debug!("start cd commmand: {:#?}", _args);
         let (dest, success) = match _args.len() {
@@ -119,7 +128,7 @@ impl <'a>Shell<'a> {
         debug!("End cd commmand.");
     }
 
-    // history executes the history bash command. It is assumed that this will not be used asynchronously. If it needs to, then add this and the history_list to the executor.
+    // history executes the history bash command.
     fn history(&mut self) {
         debug!("Start history commmand.");
 
