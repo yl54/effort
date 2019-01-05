@@ -1,4 +1,4 @@
-// This file will represent a simple scheduler.
+// This file will represent a base scheduler.
 
 use std::fmt::{Display, Formatter, Result};
 use std::thread;
