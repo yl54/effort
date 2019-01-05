@@ -3,8 +3,6 @@
 use std::fmt::{Display, Formatter, Result};
 use std::thread;
 
-use gash::executor::Executor;
-
 // Struct for scheduler
 pub struct Scheduler {
     // list of process struct
@@ -21,33 +19,6 @@ impl Scheduler {
             process_list: vec![],
             process_count: 0,
         }
-    }
-
-    // function to run an executor instance
-    pub fn run_executor(&mut self, mut ex: Executor) -> bool {
-        let cmd_clone = ex.get_cmd();
-
-        // Start the background process
-        let h: thread::JoinHandle<String> = thread::spawn(move || {
-            ex.run_cmd();
-            "SUCCESS!".to_string()
-        });
-
-        // Record the process
-        let p_info = ProcessInfo {
-            id: self.process_count,
-            cmd: cmd_clone,
-        };
-        let p = Process{
-            p_info: p_info,
-            handler: h,
-        };
-        self.process_list.push(p);
-        
-        // Update the process count for the next process
-        self.process_count += 1;
-
-        return true;
     }
 
     // function to get the process metadata. It excludes the handler
@@ -78,7 +49,24 @@ impl Scheduler {
         }
     }
 
-    // function to kill a process
+    // 
+    pub fn record_process(&mut self, cmd: String, h: thread::JoinHandle<String>) {
+        // Record the process
+        let p_info = ProcessInfo {
+            id: self.process_count,
+            cmd: cmd,
+        };
+        let p = Process{
+            p_info: p_info,
+            handler: h,
+        };
+
+        // Add the process to the process list
+        self.process_list.push(p);
+        
+        // Update the process count for the next process
+        self.process_count += 1;
+    }
 }
 
 // Process represents a background process started from some external input

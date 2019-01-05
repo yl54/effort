@@ -9,7 +9,7 @@ use std::sync::mpsc::{Receiver, Sender};
 use std::vec::Vec;
 
 use gash::executor::Executor;
-use scheduler::Scheduler;
+use gash::gash_scheduler::GashScheduler;
 
 pub struct Shell<'a> {
     cmd_prompt: &'a str,
@@ -21,7 +21,7 @@ pub struct Shell<'a> {
     pub rx_pipe: Option<Box<Receiver<String>>>,
 
     ex: Executor,
-    sc: Scheduler,
+    gsc: GashScheduler,
 }
 
 impl <'a>Shell<'a> {
@@ -34,7 +34,7 @@ impl <'a>Shell<'a> {
             tx_pipe: tx,
             rx_pipe: Some(Box::new(rx)),
             ex: Executor::new_with_sender(tx_ref),
-            sc: Scheduler::new(),
+            gsc: GashScheduler::new(),
         }
     }
 
@@ -86,7 +86,7 @@ impl <'a>Shell<'a> {
             // Check if it is an asynchronous execution.
             match argv[argv.len() - 1] {
                 "&" => {
-                    self.sc.run_executor(self.ex.clone()); 
+                    self.gsc.run_executor(self.ex.clone()); 
                 }          
                 _ => { self.ex.run_cmd(); }
             }
@@ -136,6 +136,6 @@ impl <'a>Shell<'a> {
 
     // plist lists the processes recorded by the scheduler.
     fn plist(&mut self) {
-        self.sc.show_process_list();
+        self.gsc.show_process_list();
     }
 }
