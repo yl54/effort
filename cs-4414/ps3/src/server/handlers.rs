@@ -70,28 +70,31 @@ fn write_utility_stream(path: &str, stream: &mut TcpStream) {
     // Read each line from the file.
     for line in BufReader::new(file).lines() {
         let l = line.expect("line not found");        
-        let mut output_line = l.clone();
+        let mut output_line: String = l.clone();
         debug!("l: {}", l);
-    
-        // Look for the regex matching the html shell command.
-        for caps in re.captures_iter(&l.to_string()) {
-            debug!("captured l: {}", l);
-            
-            // Get the command from the regex.
-            let cmd = caps.get(1).unwrap().as_str().to_string();
-            debug!("cmd: {}", cmd.clone());
 
-            // Initialize the executor.
-            let mut ex = Executor::new_without_sender();
-            ex.set_current_cmd(cmd.clone());
+        // Check if the line matches the regex.
+        let output_line = match re.captures(&l) {
+            Some(cap) => {
+                debug!("captured l: {}", l);
 
-            // Execute the command and get the output.
-            let gash_output = ex.run_cmd();
-            debug!("gash_output: {}", gash_output.clone());
+                // Read the command from the capture.
+                let cmd = cap.get(1).unwrap().as_str().to_string();
+                debug!("cmd: {}", cmd.clone());
 
-            // Replace the shtml command with the output.
-            output_line = re.replace(&output_line, gash_output.as_str()).to_string();
-        }
+                // Initialize the executor.
+                let mut ex = Executor::new_without_sender();
+                ex.set_current_cmd(cmd.clone());
+
+                // Execute the command and get the output.
+                let gash_output = ex.run_cmd();
+                debug!("gash_output: {}", gash_output.clone());
+
+                // Replace the shtml command with the output.
+                re.replace(&output_line, gash_output.as_str()).to_string()
+            },
+            None => output_line,
+        };
 
         // Add to the new string.
         output_content = format!("{}\n{}", output_content, output_line);
