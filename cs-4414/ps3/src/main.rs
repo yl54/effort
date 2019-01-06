@@ -2,6 +2,8 @@ pub mod gash;
 pub mod scheduler;
 pub mod server;
 
+extern crate http;
+extern crate httparse;
 #[macro_use]
 extern crate log;
 extern crate regex;
