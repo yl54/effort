@@ -16,38 +16,6 @@ pub fn get_file_contents(file_path: &str) -> String {
     return contents;
 }
 
-// extract_path extracts the path from a HTTP POST request.
-pub fn extract_path(request: &str) -> &str {
-    // Split the string by new line
-    let lines: Vec<&str> = request.split("\n").collect();
-
-    // Check if the vec is valid.
-    if lines.len() <= 0 {
-        return "";
-    }
-
-    // Take the first string
-    let line: &str = lines[0];
-
-    // Split the string by " "
-    let spl: Vec<&str> = line.split(" ").collect();
-    let spl_len = spl.len();
-
-    // Check if the vec is valid.
-    if spl_len <= 0 || spl_len != 3 {
-        debug!("Part does not match format. It is {} parts long.", spl_len);
-        return "";
-    }
-
-    // Get the second string
-    // take the &str in the middle, ignore the first character
-    let part: &str = &spl[1][1..];
-    debug!("part: {}", part);
-
-    // Try to match and return.
-    return part;
-}
-
 fn debug_vec_str(lines: Vec<&str>) {
     for l in &lines {
         debug!("{}", l);

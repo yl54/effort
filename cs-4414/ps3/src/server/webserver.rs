@@ -7,8 +7,12 @@ use std::net::{TcpListener, TcpStream};
 use std::str;
 use std::sync::{Arc, Mutex};
 
+use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
+
 use server::handlers;
 use server::utils;
+
+const NUM_OF_HEADERS: usize = 30;
 
 // Server address
 const SERVER_ADDR: &str = "127.0.0.1";
@@ -88,18 +92,26 @@ impl Webserver {
                     let mut buf = [0 ;500];
                     stream.read(&mut buf).unwrap();
 
-                    // Extract the body from the stream.
-                    let body: &str = match str::from_utf8(&buf) {
+                    // Extract the body and path from the stream.
+                    let mut headers = [EMPTY_HEADER; NUM_OF_HEADERS];
+                    let mut req = Request::new(&mut headers[..]);
+                    let status = match req.parse(buf.as_ref()) {
+                        Ok(s) => s,
                         Err(err) => {
-                            debug!("Received request error: {}", err.description());
-                            continue;
+                            debug!("Failed parsing the bytes into a request.");
+                            continue
                         },
-                        Ok(body) => body,
                     };
-                    
-                    // Extract the path from the body.
-                    let path = utils::extract_path(&body).to_string();
-                    match self.handlers.get(&path) {
+
+                    let path = match req.path {
+                        Some(p) => p,
+                        None => {
+                            debug!("Failed getting the path from the request.");
+                            continue
+                        },
+                    };
+
+                    match self.handlers.get(&path.to_string()) {
                         Some(h) => { 
                             (h.handler)(&mut stream);
                             let mut c = h.count.lock().unwrap();
