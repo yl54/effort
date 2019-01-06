@@ -29,8 +29,6 @@ pub struct Webserver {
 
     // requests_total is the count of how many total requests have been recieved.
     requests_total: Arc<Mutex<u16>>,
-
-    
 }
 
 impl Webserver {
