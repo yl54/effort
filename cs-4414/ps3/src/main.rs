@@ -1,5 +1,4 @@
 pub mod gash;
-pub mod scheduler;
 pub mod server;
 
 extern crate http;
