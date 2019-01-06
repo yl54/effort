@@ -1,9 +1,12 @@
+use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 
+use http::header::{self, HeaderName, HeaderValue};
+use http::{Response, StatusCode};
 use regex::Regex;
 
 use gash::executor::Executor;
@@ -41,9 +44,15 @@ fn write_stream(file_path: &str, stream: &mut TcpStream) {
     // Create the full http response based off of the page
     let html_file_contents: String = utils::get_file_contents(file_path);
 
-    // Create a new response string and write to stream.
-    let response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n{}\r\n", html_file_contents);
-    stream.write(response.as_bytes()).unwrap();
+    // Create a response and attempt to write back to the stream.
+    let mut response = Response::builder();
+    match response.status(StatusCode::OK)
+            .header("Content-Type", "text/html")
+            .header("charset", "UTF-8")
+            .body(html_file_contents.as_bytes()) {
+        Ok(res) => { utils::write_response(res, stream); },
+        Err(err) => { debug!("Failed to create response: {}", err.description()); }
+    }
 }
 
 // handle_utility_date gets the utility date page and shows it to the user.
@@ -101,7 +110,13 @@ fn write_utility_stream(path: &str, stream: &mut TcpStream) {
         output_content = format!("{}\n{}", output_content, output_line);
     }
 
-    // Create a new response string and write to stream.
-    let response = format!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n{}\r\n", output_content);
-    stream.write(response.as_bytes()).unwrap();
+    // Create a response and attempt to write back to the stream.
+    let mut response = Response::builder();
+    match response.status(StatusCode::OK)
+                  .header("Content-Type", "text/html")
+                  .header("charset", "UTF-8")
+                  .body(output_content.as_bytes()) {
+        Ok(res) => { utils::write_response(res, stream); },
+        Err(err) => { debug!("Failed to create response: {}", err.description()); }
+    }
 }
