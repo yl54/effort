@@ -7,8 +7,7 @@ use std::sync::{Arc, Mutex};
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::handlers;
-
-const NUM_OF_HEADERS: usize = 30;
+use server::utils;
 
 pub type Callback = fn(&mut TcpStream);
 
@@ -58,7 +57,7 @@ impl Scheduler {
         stream.read(&mut buf).unwrap();
 
         // Extract the body and path from the stream.
-        let mut headers = [EMPTY_HEADER; NUM_OF_HEADERS];
+        let mut headers = [EMPTY_HEADER; utils::NUM_OF_HEADERS];
         let mut req = Request::new(&mut headers[..]);
         let status = match req.parse(buf.as_ref()) {
             Ok(s) => s,

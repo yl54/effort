@@ -13,8 +13,6 @@ use server::handlers;
 use server::scheduler::{Callback, Scheduler};
 use server::utils;
 
-const NUM_OF_HEADERS: usize = 30;
-
 // Server address
 const SERVER_ADDR: &str = "127.0.0.1";
 const SERVER_PORT: &str = "20001";

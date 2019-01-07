@@ -3,9 +3,13 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::net::TcpStream;
+use std::result::Result;
 
 use http::header::{self, HeaderName, HeaderValue};
 use http::{Response, StatusCode};
+use httparse::{Request, Status, EMPTY_HEADER};
+
+pub const NUM_OF_HEADERS: usize = 30;
 
 // get_file_contents attempts to get the contents of the page.
 pub fn get_file_contents(file_path: &str) -> String {
