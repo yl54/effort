@@ -13,7 +13,7 @@ use gash::executor::Executor;
 use server::utils;
 
 // handle_default reads the path and gives a response. This is the default handler
-pub fn handle_default(stream: &mut TcpStream) {
+pub fn handle_default(stream: TcpStream) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/original.html";
 
@@ -22,7 +22,7 @@ pub fn handle_default(stream: &mut TcpStream) {
 }
 
 // handle_great gets the trash page and shows it to the user.
-pub fn handle_great(stream: &mut TcpStream) {
+pub fn handle_great(stream: TcpStream) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/great.html";
 
@@ -31,7 +31,7 @@ pub fn handle_great(stream: &mut TcpStream) {
 }
 
 // handle_trash gets the trash page and shows it to the user.
-pub fn handle_trash(stream: &mut TcpStream) {
+pub fn handle_trash(stream: TcpStream) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/trash.html";
 
@@ -40,7 +40,7 @@ pub fn handle_trash(stream: &mut TcpStream) {
 }
 
 // write_stream gets the file from the path and writes it as a response.
-fn write_stream(file_path: &str, stream: &mut TcpStream) {
+fn write_stream(file_path: &str, stream: TcpStream) {
     // Create the full http response based off of the page
     let html_file_contents: String = utils::get_file_contents(file_path);
 
@@ -56,7 +56,7 @@ fn write_stream(file_path: &str, stream: &mut TcpStream) {
 }
 
 // handle_utility_date gets the utility date page and shows it to the user.
-pub fn handle_utility_date(stream: &mut TcpStream) {
+pub fn handle_utility_date(stream: TcpStream) {
     // Pick the page based off of the request.
     let path: &str = "files/utility/date.shtml";
 
@@ -66,7 +66,7 @@ pub fn handle_utility_date(stream: &mut TcpStream) {
 
 // write_utility_stream handles paths through `utility`.
 // These return dynamic shtml pages, usually running some shell command.
-fn write_utility_stream(path: &str, stream: &mut TcpStream) {
+fn write_utility_stream(path: &str, stream: TcpStream) {
     // Get the file handle.
     let file = File::open(path).expect("file not found");
 

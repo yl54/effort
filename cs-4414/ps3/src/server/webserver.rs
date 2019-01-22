@@ -35,7 +35,7 @@ impl Webserver {
         // Create a tcp listener.
         // Bind the listener to some address. Use the local address for now.
         let full_address = format!("{}{}{}", SERVER_ADDR, ":", SERVER_PORT);
-        let listener = TcpListener::bind(full_address).expect("Could not bind to address.");       
+        let listener = TcpListener::bind(full_address).expect("Could not bind to address.");
 
         return Webserver {
             listener: listener,
@@ -60,7 +60,7 @@ impl Webserver {
             match stream {
                 Err(err) => debug!("Couldn't read the stream: {}", err.description()),
                 Ok(mut stream) => {
-                    self.sc.schedule_stream(&mut stream);
+                    self.sc.schedule_stream(stream);
                 }
             }
         }

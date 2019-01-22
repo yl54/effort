@@ -33,14 +33,14 @@ fn debug_vec_str(lines: Vec<&str>) {
 }
 
 // write_response writes an http response to a stream.
-pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, stream: &mut TcpStream) {
+pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, mut stream: TcpStream) {
     // Get the parts of the http response.
     let (parts, body) = response.into_parts();
     let body: &[u8] = body.borrow();
 
     // Get the initial header text.
     let mut text = format!(
-        "HTTP/1.1 {} {}\r\n",
+        "HTTP/1.1 {} {}\r",
         parts.status.as_str(),
         parts.status.canonical_reason()
                     .expect("Unsupported HTTP Status"),

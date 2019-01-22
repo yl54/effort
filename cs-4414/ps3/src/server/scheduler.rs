@@ -9,7 +9,7 @@ use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 use server::handlers;
 use server::utils;
 
-pub type Callback = fn(&mut TcpStream);
+pub type Callback = fn(TcpStream);
 
 struct Handler {
     // path is the url path.
@@ -50,7 +50,7 @@ impl Scheduler {
     }
 
     // schedule_stream gets a request from the input stream and writes to it.
-    pub fn schedule_stream(&mut self, stream: &mut TcpStream) {
+    pub fn schedule_stream(&mut self, mut stream: TcpStream) {
         // Read from the stream.
         // Q: Why do you have to read from the stream before stuff is written into it?
         let mut buf = [0 ;500];
