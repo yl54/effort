@@ -19,14 +19,14 @@ const SERVER_PORT: &str = "20001";
 
 // Webserver 
 pub struct Webserver {
-    // tcp_listener is the handle to the request listener.
-    listener: TcpListener,
+    // l is the handle to the request listener.
+    l: TcpListener,
 
     // sc is a scheduler for each connection that comes to the Webserver.    
     sc: Scheduler,
 
-    // requests_total is the count of how many total requests have been recieved.
-    requests_total: Arc<Mutex<u16>>,
+    // req_total is the count of how many total requests have been recieved.
+    req_total: Arc<Mutex<u16>>,
 }
 
 impl Webserver {
@@ -38,9 +38,9 @@ impl Webserver {
         let listener = TcpListener::bind(full_address).expect("Could not bind to address.");
 
         return Webserver {
-            listener: listener,
+            l: listener,
             sc: Scheduler::new(),
-            requests_total: Arc::new(Mutex::new(0)),
+            req_total: Arc::new(Mutex::new(0)),
         };
     }
 
@@ -52,9 +52,9 @@ impl Webserver {
     // listen listens for requests and executes the proper handler if possible.
     pub fn listen(&mut self) {
         // Start the listener infinite loop.
-        for stream in self.listener.incoming() {
+        for stream in self.l.incoming() {
             // Increase the value of the int the reference is pointing to.
-            let mut num_total = self.requests_total.lock().unwrap();
+            let mut num_total = self.req_total.lock().unwrap();
             *num_total += 1;
 
             match stream {

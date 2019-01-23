@@ -10,37 +10,38 @@ use http::{Response, StatusCode};
 use regex::Regex;
 
 use gash::executor::Executor;
+use server::http::HRequest;
 use server::utils;
 
 // handle_default reads the path and gives a response. This is the default handler
-pub fn handle_default(stream: TcpStream) {
+pub fn handle_default(hRequest: HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/original.html";
 
     // Write to stream.
-    write_stream(html_file_path, stream);
+    write_stream(html_file_path, hRequest);
 }
 
 // handle_great gets the trash page and shows it to the user.
-pub fn handle_great(stream: TcpStream) {
+pub fn handle_great(hRequest: HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/great.html";
 
     // Write to stream.
-    write_stream(html_file_path, stream);
+    write_stream(html_file_path, hRequest);
 }
 
 // handle_trash gets the trash page and shows it to the user.
-pub fn handle_trash(stream: TcpStream) {
+pub fn handle_trash(hRequest: HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/trash.html";
 
     // Write to stream.
-    write_stream(html_file_path, stream);
+    write_stream(html_file_path, hRequest);
 }
 
 // write_stream gets the file from the path and writes it as a response.
-fn write_stream(file_path: &str, stream: TcpStream) {
+fn write_stream(file_path: &str, hRequest: HRequest) {
     // Create the full http response based off of the page
     let html_file_contents: String = utils::get_file_contents(file_path);
 
@@ -50,23 +51,23 @@ fn write_stream(file_path: &str, stream: TcpStream) {
             .header("Content-Type", "text/html")
             .header("charset", "UTF-8")
             .body(html_file_contents.as_bytes()) {
-        Ok(res) => { utils::write_response(res, stream); },
+        Ok(res) => { utils::write_response(res, hRequest); },
         Err(err) => { debug!("Failed to create response: {}", err.description()); }
     }
 }
 
 // handle_utility_date gets the utility date page and shows it to the user.
-pub fn handle_utility_date(stream: TcpStream) {
+pub fn handle_utility_date(hRequest: HRequest) {
     // Pick the page based off of the request.
     let path: &str = "files/utility/date.shtml";
 
     // Write to stream.
-    write_utility_stream(path, stream);
+    write_utility_stream(path, hRequest);
 }
 
 // write_utility_stream handles paths through `utility`.
 // These return dynamic shtml pages, usually running some shell command.
-fn write_utility_stream(path: &str, stream: TcpStream) {
+fn write_utility_stream(path: &str, hRequest: HRequest) {
     // Get the file handle.
     let file = File::open(path).expect("file not found");
 
@@ -116,7 +117,7 @@ fn write_utility_stream(path: &str, stream: TcpStream) {
                   .header("Content-Type", "text/html")
                   .header("charset", "UTF-8")
                   .body(output_content.as_bytes()) {
-        Ok(res) => { utils::write_response(res, stream); },
+        Ok(res) => { utils::write_response(res, hRequest); },
         Err(err) => { debug!("Failed to create response: {}", err.description()); }
     }
 }

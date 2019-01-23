@@ -9,6 +9,8 @@ use http::header::{self, HeaderName, HeaderValue};
 use http::{Response, StatusCode};
 use httparse::{Request, Status, EMPTY_HEADER};
 
+use server::http::HRequest;
+
 pub const NUM_OF_HEADERS: usize = 30;
 
 // get_file_contents attempts to get the contents of the page.
@@ -33,7 +35,7 @@ fn debug_vec_str(lines: Vec<&str>) {
 }
 
 // write_response writes an http response to a stream.
-pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, mut stream: TcpStream) {
+pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, mut hRequest: HRequest) {
     // Get the parts of the http response.
     let (parts, body) = response.into_parts();
     let body: &[u8] = body.borrow();
@@ -53,9 +55,9 @@ pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, mut stream: TcpStr
     text = format!("{}\r\n\n", text);
 
     // Write to stream.
-    stream.write(text.as_bytes());
-    stream.write(body);
+    hRequest.stream.write(text.as_bytes());
+    hRequest.stream.write(body);
 
     // Q: what is stream flush?
-    stream.flush();
+    hRequest.stream.flush();
 }

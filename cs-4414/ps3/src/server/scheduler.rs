@@ -7,9 +7,10 @@ use std::sync::{Arc, Mutex};
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::handlers;
+use server::http::HRequest;
 use server::utils;
 
-pub type Callback = fn(TcpStream);
+pub type Callback = fn(HRequest);
 
 struct Handler {
     // path is the url path.
@@ -74,15 +75,17 @@ impl Scheduler {
                 return
             },
         };
+
+        let hRequest = HRequest::convert(req, stream);
     
         match self.handlers.get(&path.to_string()) {
             Some(h) => { 
-                (h.handler)(stream);
+                (h.handler)(hRequest);
                 let mut c = h.count.lock().unwrap();
                 *c += 1;
             },
             None => {
-                handlers::handle_default(stream); 
+                handlers::handle_default(hRequest); 
             },
         }
     }

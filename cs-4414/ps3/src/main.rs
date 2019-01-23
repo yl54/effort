@@ -8,6 +8,7 @@ extern crate log;
 extern crate regex;
 
 use server::handlers;
+use server::http::HRequest;
 use server::webserver::Webserver;
 
 fn main() {
