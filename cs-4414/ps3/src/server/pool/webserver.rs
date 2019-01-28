@@ -6,12 +6,16 @@ use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::str;
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc;
+use std::sync::mpsc::{Receiver, Sender};
 
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
-use server::handlers;
-use server::scheduler::{Callback, Scheduler};
-use server::utils;
+use server::pool::handlers;
+use server::pool::http::HRequest;
+use server::pool::parser::Parser;
+use server::pool::scheduler::{Callback, Scheduler};
+use server::pool::utils;
 
 // Server address
 const SERVER_ADDR: &str = "127.0.0.1";
@@ -21,6 +25,9 @@ const SERVER_PORT: &str = "20001";
 pub struct Webserver {
     // l is the handle to the request listener.
     l: TcpListener,
+
+    // p is the parser
+    p: Parser,
 
     // sc is a scheduler for each connection that comes to the Webserver.    
     sc: Scheduler,
@@ -37,9 +44,15 @@ impl Webserver {
         let full_address = format!("{}{}{}", SERVER_ADDR, ":", SERVER_PORT);
         let listener = TcpListener::bind(full_address).expect("Could not bind to address.");
 
+        let (tx, rx): (Sender<HRequest>, Receiver<HRequest>) = mpsc::channel();
+
+        let rx_arc = Arc::new(Mutex::new(rx));
+        let rx_cl = Arc::clone(&rx_arc);
+
         return Webserver {
             l: listener,
-            sc: Scheduler::new(),
+            p: Parser::new(tx),
+            sc: Scheduler::new(rx_cl),
             req_total: Arc::new(Mutex::new(0)),
         };
     }
@@ -51,6 +64,10 @@ impl Webserver {
 
     // listen listens for requests and executes the proper handler if possible.
     pub fn listen(&mut self) {
+        // Start the scheduler listeners
+        // self.sc.schedule_requests();
+        
+
         // Start the listener infinite loop.
         for stream in self.l.incoming() {
             // Increase the value of the int the reference is pointing to.
@@ -61,6 +78,8 @@ impl Webserver {
                 Err(err) => debug!("Couldn't read the stream: {}", err.description()),
                 Ok(mut stream) => {
                     self.sc.schedule_stream(stream);
+
+                    // self.p.parse(stream);
                 }
             }
         }

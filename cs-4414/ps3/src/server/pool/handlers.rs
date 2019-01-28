@@ -2,19 +2,16 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
 
-use http::header::{self, HeaderName, HeaderValue};
 use http::{Response, StatusCode};
 use regex::Regex;
 
 use gash::executor::Executor;
-use server::http::HRequest;
-use server::utils;
+use server::pool::http::HRequest;
+use server::pool::utils;
 
 // handle_default reads the path and gives a response. This is the default handler
-pub fn handle_default(hRequest: HRequest) {
+pub fn handle_default(hRequest: &mut HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/original.html";
 
@@ -23,7 +20,7 @@ pub fn handle_default(hRequest: HRequest) {
 }
 
 // handle_great gets the trash page and shows it to the user.
-pub fn handle_great(hRequest: HRequest) {
+pub fn handle_great(hRequest: &mut HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/great.html";
 
@@ -32,7 +29,7 @@ pub fn handle_great(hRequest: HRequest) {
 }
 
 // handle_trash gets the trash page and shows it to the user.
-pub fn handle_trash(hRequest: HRequest) {
+pub fn handle_trash(hRequest: &mut HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/trash.html";
 
@@ -41,7 +38,7 @@ pub fn handle_trash(hRequest: HRequest) {
 }
 
 // write_response gets the file from the path and writes it as a response.
-fn write_response(file_path: &str, hRequest: HRequest) {
+fn write_response(file_path: &str, hRequest: &mut HRequest) {
     // Create the full http response based off of the page
     let html_file_contents: String = utils::get_file_contents(file_path);
 
@@ -57,7 +54,7 @@ fn write_response(file_path: &str, hRequest: HRequest) {
 }
 
 // handle_utility_date gets the utility date page and shows it to the user.
-pub fn handle_utility_date(hRequest: HRequest) {
+pub fn handle_utility_date(hRequest: &mut HRequest) {
     // Pick the page based off of the request.
     let path: &str = "files/utility/date.shtml";
 
@@ -67,7 +64,7 @@ pub fn handle_utility_date(hRequest: HRequest) {
 
 // write_utility_stream handles paths through `utility`.
 // These return dynamic shtml pages, usually running some shell command.
-fn write_utility_response(path: &str, hRequest: HRequest) {
+fn write_utility_response(path: &str, hRequest: &mut HRequest) {
     // Get the file handle.
     let file = File::open(path).expect("file not found");
 

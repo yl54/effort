@@ -9,7 +9,7 @@ use http::header::{self, HeaderName, HeaderValue};
 use http::{Response, StatusCode};
 use httparse::{Request, Status, EMPTY_HEADER};
 
-use server::http::HRequest;
+use server::pool::http::HRequest;
 
 pub const NUM_OF_HEADERS: usize = 30;
 
@@ -35,7 +35,7 @@ fn debug_vec_str(lines: Vec<&str>) {
 }
 
 // write_response writes an http response to a stream.
-pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, mut hRequest: HRequest) {
+pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, hRequest: &mut HRequest) {
     // Get the parts of the http response.
     let (parts, body) = response.into_parts();
     let body: &[u8] = body.borrow();

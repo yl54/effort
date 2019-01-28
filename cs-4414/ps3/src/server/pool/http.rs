@@ -3,6 +3,8 @@ use std::net::{TcpStream};
 
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
+use server::pool::scheduler::Callback;
+
 #[derive(Clone)]
 pub struct HHeader {
     pub key: String,
@@ -17,7 +19,6 @@ impl HHeader {
         }
     }
 }
-
 
 // HRequest is a custom http request
 pub struct HRequest {
@@ -58,6 +59,25 @@ impl HRequest {
             headers: headers,
             stream: stream,
         };
+    }
+}
+
+pub struct HttpJob {
+    hRequest: HRequest,
+    callback: Callback,
+}
+
+impl HttpJob {
+    pub fn new(hr: HRequest, cb: Callback) -> HttpJob {
+        HttpJob {
+            hRequest: hr,
+            callback: cb,
+        }
+    }
+
+    pub fn execute(&mut self) -> u16 {
+        (self.callback)(&mut self.hRequest);
+        0
     }
 }
 

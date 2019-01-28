@@ -1,7 +1,6 @@
 // This file contains a webserver.
 
 use std::error::Error;
-// use std::io::{Read, Write};
 use std::net::TcpListener;
 use std::str;
 use std::sync::{Arc, Mutex};
