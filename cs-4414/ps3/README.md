@@ -5,6 +5,7 @@ This folder contains a combination of homework ps2 and ps3. Used homework from t
 * ps2 is in `src/gash/`. It contains a simple REPL GASH shell. 
 * ps3 is in `src/server/`. It contains multiple versions of webservers.
     * `simple/` contains a simple, single-threaded webserver. It is the easiest version to understand and build.
+    * (WIP) `pool/` contains a webserver based off of worker pools and channels.
 
 ## Benchmarking the Webserver
 
