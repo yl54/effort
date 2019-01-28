@@ -7,9 +7,8 @@ extern crate httparse;
 extern crate log;
 extern crate regex;
 
-use server::handlers;
-use server::http::HRequest;
-use server::webserver::Webserver;
+use server::simple::handlers;
+use server::simple::webserver::Webserver;
 
 fn main() {
     // Create a webserver.
