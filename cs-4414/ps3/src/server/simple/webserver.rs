@@ -1,5 +1,3 @@
-// This file contains a webserver.
-
 use std::error::Error;
 use std::net::TcpListener;
 use std::str;
