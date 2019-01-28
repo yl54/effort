@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 use std::error::Error;
-// use std::io::{BufRead, BufReader, Read, Write};
 use std::io::Read;
-use std::net::{TcpStream};
+use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
 
 use httparse::{Request, EMPTY_HEADER};

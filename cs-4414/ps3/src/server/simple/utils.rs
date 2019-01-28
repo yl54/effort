@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 
-use http::{Response};
+use http::Response;
 
 pub const NUM_OF_HEADERS: usize = 30;
  
