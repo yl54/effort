@@ -10,17 +10,15 @@ use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::pool::http::{HRequest};
 
-// struct P
-struct P {
+struct Parser {
     // thread handle
     handle: thread::JoinHandle<String>,
 }
 
-// impl P
-impl P {
+impl Parser {
     // new
     // include a SenderMap and reciever
-    pub fn new(rx: Arc<Mutex<Receiver<TcpStream>>>, tx_map: SenderMap) -> P {
+    pub fn new(rx: Arc<Mutex<Receiver<TcpStream>>>, tx_map: SenderMap) -> Parser {
         // start a thread
         let h: thread::JoinHandle<String> = thread::spawn(move || {
             // start infinite loop
@@ -69,7 +67,7 @@ impl P {
         });
 
         // return the struct with the handle
-        P {
+        Parser {
             handle: h,
         }
     }
