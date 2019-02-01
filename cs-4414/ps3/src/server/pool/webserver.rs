@@ -13,7 +13,6 @@ use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::pool::handlers;
 use server::pool::http::HRequest;
-use server::pool::parser::Parser;
 use server::pool::scheduler::{Callback, Scheduler};
 use server::pool::utils;
 
@@ -26,11 +25,8 @@ pub struct Webserver {
     // l is the handle to the request listener.
     l: TcpListener,
 
-    // p is the parser
-    p: Parser,
-
     // sc is a scheduler for each connection that comes to the Webserver.    
-    sc: Scheduler,
+    //sc: Scheduler,
 
     // req_total is the count of how many total requests have been recieved.
     req_total: Arc<Mutex<u16>>,
@@ -51,22 +47,21 @@ impl Webserver {
 
         return Webserver {
             l: listener,
-            p: Parser::new(tx),
-            sc: Scheduler::new(rx_cl),
+            //p: Parser::new(tx),
+            //sc: Scheduler::new(rx_cl),
             req_total: Arc::new(Mutex::new(0)),
         };
     }
 
     // register_handler registers a handler with a path.
     pub fn register_handler(&mut self, path: String, handler: Callback) {
-        self.sc.register_handler(path, handler);
+        //self.sc.register_handler(path, handler);
     }
 
     // listen listens for requests and executes the proper handler if possible.
     pub fn listen(&mut self) {
         // Start the scheduler listeners
         // self.sc.schedule_requests();
-        
 
         // Start the listener infinite loop.
         for stream in self.l.incoming() {
@@ -77,9 +72,7 @@ impl Webserver {
             match stream {
                 Err(err) => debug!("Couldn't read the stream: {}", err.description()),
                 Ok(mut stream) => {
-                    self.sc.schedule_stream(stream);
-
-                    // self.p.parse(stream);
+                    // self.sc.schedule_stream(stream);
                 }
             }
         }

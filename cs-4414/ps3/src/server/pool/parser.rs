@@ -1,52 +1,96 @@
+use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
+use std::thread;
 
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::pool::http::{HRequest};
 
-pub struct Parser {
-    // tx_pipe is the Producer for asynchronous output.
-    pub tx_pipe: Sender<HRequest>,
+// struct P
+struct P {
+    // thread handle
+    handle: thread::JoinHandle<String>,
 }
 
-// Maybe the solution is to make our own Request object.
-// or use the http request object
-// Or figure out the lifetimes
-impl Parser {
-    pub fn new(tx: Sender<HRequest>) -> Parser {
-        Parser{
-            tx_pipe: tx,
+// impl P
+impl P {
+    // new
+    // include a SenderMap and reciever
+    pub fn new(rx: Arc<Mutex<Receiver<TcpStream>>>, tx_map: SenderMap) -> P {
+        // start a thread
+        let h: thread::JoinHandle<String> = thread::spawn(move || {
+            // start infinite loop
+            loop {
+                // Get the lock for the reciever
+                let mut stream = rx.lock().unwrap().recv().unwrap();
+
+                // Send to appropriate place in sender map
+                let mut buf = [0 ;500];
+                stream.read(&mut buf).unwrap();
+
+                // Extract the body and path from the stream.
+                let mut headers = [EMPTY_HEADER];
+                let mut req = Request::new(&mut headers);
+                let status = match req.parse(buf.as_ref()) {
+                    Ok(s) => {
+                    },
+                    Err(err) => {
+                        debug!("Failed parsing the bytes into a request.");
+                        continue;
+                    },
+                };
+
+                // Convert to simple request
+                let h = HRequest::convert(req, stream);
+
+                let path = match h.path.clone() {
+                    Some(p) => p,
+                    None => {
+                        debug!("Failed getting the path from the request.");
+                        continue;
+                    },
+                };
+            
+                match tx_map.map.get(&path.to_string()) {
+                    Some(sender) => { 
+                        sender.send(h);
+                    },
+                    None => {
+                        debug!("No handler exists for this path: {}.", path);
+                    },
+                }
+            }
+
+            "Success".to_string()
+        });
+
+        // return the struct with the handle
+        P {
+            handle: h,
+        }
+    }
+}
+
+// struct sender map
+#[derive(Clone)]
+struct SenderMap {
+    // hashmap from string to sender
+    map: HashMap<String, Sender<HRequest>>
+}
+
+impl SenderMap {
+    pub fn new() -> SenderMap {
+        SenderMap {
+            map: HashMap::new(),
         }
     }
 
-    // parse parses the stream into a request and sends it off to the next step.
-    pub fn parse(&self, mut stream: TcpStream) {
-        // create the request
-        // Read from the stream.
-        // Q: Why do you have to read from the stream before stuff is written into it?
-        let mut buf = [0 ;500];
-        stream.read(&mut buf).unwrap();
-
-        // Extract the body and path from the stream.
-        let mut headers = [EMPTY_HEADER];
-        let mut req = Request::new(&mut headers);
-        let status = match req.parse(buf.as_ref()) {
-            Ok(s) => {
-            },
-            Err(err) => {
-                debug!("Failed parsing the bytes into a request.");
-            },
-        };
-
-        // Convert to simple request
-        let h = HRequest::convert(req, stream);
-
-        // send it to the next place.
-        self.tx_pipe.send(h);
+    pub fn register_sender(&mut self, path: String, sender: Sender<HRequest>) {
+        self.map.insert(path, sender);
     }
 }
 
-// TODO: Practice a small example to pass into mpsc
