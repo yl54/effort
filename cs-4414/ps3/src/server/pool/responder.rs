@@ -15,7 +15,7 @@ pub struct Handler {
     pub path: String,
 
     // handler is the function to execute.
-    handler: Callback,
+    pub handler: Callback,
 }
 
 // handler map struct

@@ -13,6 +13,8 @@ use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::pool::handlers;
 use server::pool::http::HRequest;
+use server::pool::parser_pool::ParserPool;
+use server::pool::responder_pool::ResponderPoolCoordinator;
 use server::pool::scheduler::{Callback, Scheduler};
 use server::pool::utils;
 
@@ -28,8 +30,17 @@ pub struct Webserver {
     // sc is a scheduler for each connection that comes to the Webserver.    
     //sc: Scheduler,
 
+    // parser pool
+    pp: ParserPool,
+
+    // responder pool
+    rpc: ResponderPoolCoordinator,
+
     // req_total is the count of how many total requests have been recieved.
     req_total: Arc<Mutex<u16>>,
+
+    // initial sender to parser
+    tx: Sender<TcpStream>,
 }
 
 impl Webserver {
@@ -40,28 +51,53 @@ impl Webserver {
         let full_address = format!("{}{}{}", SERVER_ADDR, ":", SERVER_PORT);
         let listener = TcpListener::bind(full_address).expect("Could not bind to address.");
 
-        let (tx, rx): (Sender<HRequest>, Receiver<HRequest>) = mpsc::channel();
+        let (tx, rx): (Sender<TcpStream>, Receiver<TcpStream>) = mpsc::channel();
 
         let rx_arc = Arc::new(Mutex::new(rx));
         let rx_cl = Arc::clone(&rx_arc);
+
+        let parser_count = 5;
 
         return Webserver {
             l: listener,
             //p: Parser::new(tx),
             //sc: Scheduler::new(rx_cl),
             req_total: Arc::new(Mutex::new(0)),
+            pp: ParserPool::new(parser_count, rx_arc),
+            rpc: ResponderPoolCoordinator::new(),
+            tx: tx,
         };
     }
 
     // register_handler registers a handler with a path.
     pub fn register_handler(&mut self, path: String, handler: Callback) {
         //self.sc.register_handler(path, handler);
+
+        // Create a sender/reciever for that path
+        let (tx, rx): (Sender<HRequest>, Receiver<HRequest>) = mpsc::channel();
+
+        let rx_arc = Arc::new(Mutex::new(rx));
+        let rx_cl = Arc::clone(&rx_arc);
+
+        let path_cl = path.clone();
+        let tx_cl = tx.clone();
+
+        let responder_pool_count = 10;
+
+        // Register in parser pool
+        self.pp.register_parser(path_cl, tx_cl);
+
+        // Register in responder pool
+        self.rpc.add_pool(path.clone(), handler, rx_arc, responder_pool_count);
     }
 
     // listen listens for requests and executes the proper handler if possible.
     pub fn listen(&mut self) {
         // Start the scheduler listeners
         // self.sc.schedule_requests();
+        self.rpc.run();
+        self.pp.run();
+
 
         // Start the listener infinite loop.
         for stream in self.l.incoming() {
@@ -73,6 +109,9 @@ impl Webserver {
                 Err(err) => debug!("Couldn't read the stream: {}", err.description()),
                 Ok(mut stream) => {
                     // self.sc.schedule_stream(stream);
+                    self.tx.send(stream);
+
+                    println!("sent a message");
                 }
             }
         }

@@ -42,6 +42,7 @@ impl ParserPool {
     pub fn register_parser(&mut self, path: String, sender: Sender<HRequest>) {
         // add to the hashmap
         self.path_map.register_sender(path, sender);
+
     }
 
     // run 
@@ -54,6 +55,8 @@ impl ParserPool {
 
             // push worker onto parser pool list
             self.pool.push(parser);
+
+            println!("made a parser");
         }
     }
 }

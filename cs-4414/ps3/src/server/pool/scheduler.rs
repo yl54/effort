@@ -111,7 +111,7 @@ impl Scheduler {
         stream.read(&mut buf).unwrap();
 
         // Extract the body and path from the stream.
-        let mut headers = [EMPTY_HEADER; utils::NUM_OF_HEADERS];
+        let mut headers = [EMPTY_HEADER; 30];
         let mut req = Request::new(&mut headers[..]);
         let status = match req.parse(buf.as_ref()) {
             Ok(s) => s,

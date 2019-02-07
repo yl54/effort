@@ -5,10 +5,12 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
+use std::error::Error;
 
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::pool::http::{HRequest};
+use server::pool::utils;
 
 pub struct Parser {
     // thread handle
@@ -26,18 +28,21 @@ impl Parser {
                 // Get the lock for the reciever
                 let mut stream = rx.lock().unwrap().recv().unwrap();
 
+                println!("parser recieved a message");
+
                 // Send to appropriate place in sender map
                 let mut buf = [0 ;500];
                 stream.read(&mut buf).unwrap();
 
                 // Extract the body and path from the stream.
-                let mut headers = [EMPTY_HEADER];
-                let mut req = Request::new(&mut headers);
+                let mut headers = [EMPTY_HEADER; 30];
+                let mut req = Request::new(&mut headers[..]);
                 let status = match req.parse(buf.as_ref()) {
                     Ok(s) => {
                     },
                     Err(err) => {
                         debug!("Failed parsing the bytes into a request.");
+                        println!("Failed parsing the bytes into a request. {}", err.description());
                         continue;
                     },
                 };
@@ -52,6 +57,7 @@ impl Parser {
                         continue;
                     },
                 };
+                println!("path: {}", path);
             
                 match tx_map.map.get(&path.to_string()) {
                     Some(sender) => { 

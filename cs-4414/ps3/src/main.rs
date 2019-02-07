@@ -7,14 +7,15 @@ extern crate httparse;
 extern crate log;
 extern crate regex;
 
-use server::simple::handlers;
-use server::simple::webserver::Webserver;
+use server::pool::handlers;
+use server::pool::webserver::Webserver;
 
 fn main() {
     // Create a webserver.
     let mut w = Webserver::new();
 
     // Register some handlers.
+    w.register_handler("/".to_string(), handlers::handle_default);
     w.register_handler("/great".to_string(), handlers::handle_great);
     w.register_handler("/trash".to_string(), handlers::handle_trash);
     w.register_handler("/utility/date".to_string(), handlers::handle_utility_date);

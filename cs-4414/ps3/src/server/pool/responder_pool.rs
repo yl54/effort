@@ -3,10 +3,10 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc::Receiver;
 
 use server::pool::http::HRequest;
-use server::pool::responder::{ Handler, Responder };
+use server::pool::responder::{ Callback, Handler, Responder };
 
 // struct for responder pool coordinator
-struct ResponderPoolCoordinator{
+pub struct ResponderPoolCoordinator{
     // list of responder pools that exist
     pools: HashMap<String, ResponderPool>,
 }
@@ -21,10 +21,21 @@ impl ResponderPoolCoordinator {
     }
 
     // add handler
-    pub fn add_pool(&mut self, rx: Arc<Mutex<Receiver<HRequest>>>, handler: Handler, count: usize) {
+    pub fn add_pool(&mut self, path: String, c: Callback, rx: Arc<Mutex<Receiver<HRequest>>>, count: usize) {
+        let handler = Handler {
+            path: path.clone(),
+            handler: c, 
+        };
         let path = handler.path.clone();
         let r_pool = ResponderPool::new(rx, handler, count);
         self.pools.insert(path, r_pool);
+    }
+
+    // run
+    pub fn run(&mut self) {
+        for (path, mut pool) in &mut self.pools {
+            pool.run();
+        }
     }
 }
 
@@ -64,6 +75,7 @@ impl ResponderPool {
 
             // push worker onto scheduler pool list
             self.pool.push(responder);
+            println!("made a responder");
         }
     }
 }
