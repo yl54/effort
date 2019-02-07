@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
+use std::io::Error;
 
 use server::pool::http::{HRequest};
 use server::pool::parser::{Parser, SenderMap};
@@ -18,7 +19,7 @@ pub struct ParserPool {
     pool: Vec<Parser>,  
 
     // reciever for thing
-    rx: Arc<Mutex<Receiver<TcpStream>>>,
+    rx: Arc<Mutex<Receiver<Result<TcpStream, Error>>>>,
 
     // Map to send requests
     path_map: SenderMap,
@@ -28,7 +29,7 @@ pub struct ParserPool {
 impl ParserPool {
     // new
     // include count, reciever
-    pub fn new(count: usize, rx: Arc<Mutex<Receiver<TcpStream>>>) -> ParserPool {
+    pub fn new(count: usize, rx: Arc<Mutex<Receiver<Result<TcpStream, Error>>>>) -> ParserPool {
         // return new
         ParserPool {
             count: count, 
@@ -55,8 +56,6 @@ impl ParserPool {
 
             // push worker onto parser pool list
             self.pool.push(parser);
-
-            println!("made a parser");
         }
     }
 }

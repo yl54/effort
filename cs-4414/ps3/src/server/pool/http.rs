@@ -3,7 +3,7 @@ use std::net::{TcpStream};
 
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
-use server::pool::scheduler::Callback;
+use server::pool::responder::Callback;
 
 #[derive(Clone)]
 pub struct HHeader {

@@ -75,7 +75,6 @@ impl ResponderPool {
 
             // push worker onto scheduler pool list
             self.pool.push(responder);
-            println!("made a responder");
         }
     }
 }

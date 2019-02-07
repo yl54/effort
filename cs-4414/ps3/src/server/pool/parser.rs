@@ -5,7 +5,8 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
-use std::error::Error;
+use std::error::{Error as Erroror};
+use std::io::Error;
 
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
@@ -20,29 +21,34 @@ pub struct Parser {
 impl Parser {
     // new
     // include a SenderMap and reciever
-    pub fn new(rx: Arc<Mutex<Receiver<TcpStream>>>, tx_map: SenderMap) -> Parser {
+    pub fn new(rx: Arc<Mutex<Receiver<Result<TcpStream, Error>>>>, tx_map: SenderMap) -> Parser {
         // start a thread
         let h: thread::JoinHandle<String> = thread::spawn(move || {
             // start infinite loop
             loop {
                 // Get the lock for the reciever
-                let mut stream = rx.lock().unwrap().recv().unwrap();
+                let mut res_stream = rx.lock().unwrap().recv().unwrap();
 
-                println!("parser recieved a message");
+                let mut stream = match res_stream {
+                    Err(err) => {
+                        debug!("Couldn't read the stream: {}", err.description());
+                        continue;
+                    },
+                    Ok(mut stream) => { stream }
+                };
 
                 // Send to appropriate place in sender map
                 let mut buf = [0 ;500];
                 stream.read(&mut buf).unwrap();
 
                 // Extract the body and path from the stream.
-                let mut headers = [EMPTY_HEADER; 30];
+                let mut headers = [EMPTY_HEADER; utils::NUM_OF_HEADERS];
                 let mut req = Request::new(&mut headers[..]);
                 let status = match req.parse(buf.as_ref()) {
                     Ok(s) => {
                     },
                     Err(err) => {
                         debug!("Failed parsing the bytes into a request.");
-                        println!("Failed parsing the bytes into a request. {}", err.description());
                         continue;
                     },
                 };

@@ -4,6 +4,5 @@ pub mod parser;
 pub mod parser_pool;
 pub mod responder;
 pub mod responder_pool;
-pub mod scheduler;
 pub mod utils;
 pub mod webserver;
