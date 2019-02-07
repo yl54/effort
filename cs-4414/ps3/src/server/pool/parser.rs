@@ -10,7 +10,7 @@ use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::pool::http::{HRequest};
 
-struct Parser {
+pub struct Parser {
     // thread handle
     handle: thread::JoinHandle<String>,
 }
@@ -75,7 +75,7 @@ impl Parser {
 
 // struct sender map
 #[derive(Clone)]
-struct SenderMap {
+pub struct SenderMap {
     // hashmap from string to sender
     map: HashMap<String, Sender<HRequest>>
 }
