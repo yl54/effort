@@ -15,10 +15,10 @@ use server::pool::webserver::Webserver;
 
 fn main() {
     // Create a webserver.
-    let mut w = Webserver::new();
+    let mut w = Webserver::new(2000);
 
     // Register some handlers.
-    w.register_handler("/".to_string(), handlers::handle_default);
+    w.register_handler("/".to_string(), handlers::handle_default, 10);
     //w.register_handler("/great".to_string(), handlers::handle_great);
     //w.register_handler("/trash".to_string(), handlers::handle_trash);
     //w.register_handler("/utility/date".to_string(), //handlers::handle_utility_date);
