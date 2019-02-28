@@ -47,7 +47,6 @@ impl Webserver {
         // Create the channel from the initial listener to the parser pool
         let (tx, rx): (Sender<Result<TcpStream, Error>>, Receiver<Result<TcpStream, Error>>) = mpsc::channel();
         let rx_arc = Arc::new(Mutex::new(rx));
-
         return Webserver {
             l: listener,
             req_total: Arc::new(Mutex::new(0)),
@@ -62,7 +61,7 @@ impl Webserver {
         let path_cl = path.clone();
 
         // Create a channel from the parser pool to the responder pool
-        let (tx, rx): (Sender<HRequest>, Receiver<HRequest>) = mpsc::channel();
+        let (tx, rx): (Sender<Result<HRequest, Error>>, Receiver<Result<HRequest, Error>>) = mpsc::channel();
         let rx_arc = Arc::new(Mutex::new(rx));
 
         // Register with the parser pool and the responder pool coordinator

@@ -6,29 +6,32 @@ use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use std::error::{Error as Erroror};
-use std::io::Error;
+use std::io::{Error, ErrorKind};
 
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::pool::http::{HRequest};
 use server::pool::utils;
 
+/* 
+    Parsers are the initial workers to process http requests. They process http events in this order:
+    * Parse the raw contents of the http response
+    * Check if the path exists
+        * If the path exists, pass it onto the next field
+        * If the path doesn't exist, drop the request. (TODO: probably would be good to add a default 404 page)
+*/
 pub struct Parser {
     // thread handle
     handle: thread::JoinHandle<String>,
 }
 
 impl Parser {
-    // new
-    // include a SenderMap and reciever
     pub fn new(rx: Arc<Mutex<Receiver<Result<TcpStream, Error>>>>, tx_map: SenderMap) -> Parser {
-        // start a thread
         let h: thread::JoinHandle<String> = thread::spawn(move || {
-            // start infinite loop
+            // Start infinite loop
             loop {
                 // Get the lock for the reciever
-                let mut res_stream = rx.lock().unwrap().recv().unwrap();
-
+                let mut res_stream: Result<TcpStream, Error> = rx.lock().unwrap().recv().unwrap();
                 let mut stream = match res_stream {
                     Err(err) => {
                         debug!("Couldn't read the stream: {}", err.description());
@@ -63,11 +66,10 @@ impl Parser {
                         continue;
                     },
                 };
-                println!("path: {}", path);
             
                 match tx_map.map.get(&path.to_string()) {
                     Some(sender) => { 
-                        sender.send(h);
+                        sender.send(Ok(h));
                     },
                     None => {
                         debug!("No handler exists for this path: {}.", path);
@@ -78,18 +80,19 @@ impl Parser {
             "Success".to_string()
         });
 
-        // return the struct with the handle
         Parser {
             handle: h,
         }
     }
 }
 
-// struct sender map
+/*
+    SenderMaps exists as a bridge for Parsers to send parsed requests to Responders.
+*/
 #[derive(Clone)]
 pub struct SenderMap {
     // hashmap from string to sender
-    map: HashMap<String, Sender<HRequest>>
+    map: HashMap<String, Sender<Result<HRequest, Error>>>
 }
 
 impl SenderMap {
@@ -99,7 +102,7 @@ impl SenderMap {
         }
     }
 
-    pub fn register_sender(&mut self, path: String, sender: Sender<HRequest>) {
+    pub fn register_sender(&mut self, path: String, sender: Sender<Result<HRequest, Error>>) {
         self.map.insert(path, sender);
     }
 }

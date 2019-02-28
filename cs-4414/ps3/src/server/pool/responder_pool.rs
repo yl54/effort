@@ -2,26 +2,28 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::Receiver;
 
+use std::error::{Error as Erroror};
+use std::io::{Error, ErrorKind};
+
 use server::pool::http::HRequest;
 use server::pool::responder::{ Callback, Handler, Responder };
 
-// struct for responder pool coordinator
+/*
+    ResponderPoolCoordinators coordinate the existence of the ResponderPools.
+*/
 pub struct ResponderPoolCoordinator{
-    // list of responder pools that exist
     pools: HashMap<String, ResponderPool>,
 }
 
-// impl for responder pool coordinator
 impl ResponderPoolCoordinator {
-    // new
     pub fn new() -> ResponderPoolCoordinator {
         ResponderPoolCoordinator {
             pools: HashMap::new(),
         }
     }
 
-    // add handler
-    pub fn add_pool(&mut self, path: String, c: Callback, rx: Arc<Mutex<Receiver<HRequest>>>, count: usize) {
+    // add_pool adds a new ResponderPool to the coordinator.
+    pub fn add_pool(&mut self, path: String, c: Callback, rx: Arc<Mutex<Receiver<Result<HRequest, Error>>>>, count: usize) {
         let handler = Handler {
             path: path.clone(),
             handler: c, 
@@ -31,7 +33,7 @@ impl ResponderPoolCoordinator {
         self.pools.insert(path, r_pool);
     }
 
-    // run
+    // run starts all of the ResponderPools.
     pub fn run(&mut self) {
         for (path, mut pool) in &mut self.pools {
             pool.run();
@@ -39,26 +41,28 @@ impl ResponderPoolCoordinator {
     }
 }
 
-// struct for responder pool
+/*
+    ResponderPools manage and record the existence of individual Responders.
+    Each ResponderPool is only responsible for handling the requests of one
+    url path.
+*/
 struct ResponderPool {
-    // list of scheduler workers
+    // pool contains all of the Responder workers in this pool.
     pool: Vec<Responder>,
 
-    // A reference to the reciever. This is shared by all of the responder instances.
-    rx: Arc<Mutex<Receiver<HRequest>>>,
+    // rx is a reciever for events of a particular path.
+    rx: Arc<Mutex<Receiver<Result<HRequest, Error>>>>,
 
-    // Handler
+    // h is the function that will be executed by the Responder on the HRequest.
     h: Handler,
 
-    // count
+    // count is the size of the pool.
+    // TODO: Get a better name?
     count: usize,
 }
 
-// impl for responder pool
 impl ResponderPool {
-    // new 
-    // includes handler, count of number of pool, reciever atomoic reference to clone
-    pub fn new(rx: Arc<Mutex<Receiver<HRequest>>>, handler: Handler, count: usize) -> ResponderPool {
+    pub fn new(rx: Arc<Mutex<Receiver<Result<HRequest, Error>>>>, handler: Handler, count: usize) -> ResponderPool {
         ResponderPool {
             pool: vec![],
             rx: rx,
@@ -67,13 +71,10 @@ impl ResponderPool {
         }
     }
 
+    // run starts all of the workers.
     pub fn run(&mut self) {
-        // for loop over the count of schedulers in the pool
         for x in 0..self.count {
-            // create a new scheduler worker            
             let responder = Responder::new(self.rx.clone(), &self.h);
-
-            // push worker onto scheduler pool list
             self.pool.push(responder);
         }
     }

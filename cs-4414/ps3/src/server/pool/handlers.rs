@@ -10,7 +10,9 @@ use gash::executor::Executor;
 use server::pool::http::HRequest;
 use server::pool::utils;
 
-// handle_default reads the path and gives a response. This is the default handler
+// This contains a few examples of responder handlers.
+
+// handle_default is an example default handler.
 pub fn handle_default(hRequest: &mut HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/original.html";
@@ -19,7 +21,7 @@ pub fn handle_default(hRequest: &mut HRequest) {
     write_response(html_file_path, hRequest);
 }
 
-// handle_great gets the trash page and shows it to the user.
+// handle_great gets the great page and shows it to the user.
 pub fn handle_great(hRequest: &mut HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/great.html";

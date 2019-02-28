@@ -10,27 +10,26 @@ use std::io::Error;
 use server::pool::http::{HRequest};
 use server::pool::parser::{Parser, SenderMap};
 
-// struct for parser pool
+/*
+    ParserPools manage and record the existence of Parser workers.
+*/
 pub struct ParserPool {
-    // count
+    // count is the size of the pool.
     count: usize,
 
-    // vec to parsers
+    // pool exists to hold a reference to all of the Parser workers.
     pool: Vec<Parser>,  
 
-    // reciever for thing
+    // rx is a reciever for raw TcpStreams coming from the Webserver.
+    // Each Parser worker will consume streams from the Webserver via this channel.
     rx: Arc<Mutex<Receiver<Result<TcpStream, Error>>>>,
 
-    // Map to send requests
+    // path_map is the SenderMap that every Parser will use to refer parsed requests to.
     path_map: SenderMap,
 }
 
-// impl for parser pool
 impl ParserPool {
-    // new
-    // include count, reciever
     pub fn new(count: usize, rx: Arc<Mutex<Receiver<Result<TcpStream, Error>>>>) -> ParserPool {
-        // return new
         ParserPool {
             count: count, 
             pool: vec![],
@@ -39,22 +38,17 @@ impl ParserPool {
         } 
     }
 
-    // register handler
-    pub fn register_parser(&mut self, path: String, sender: Sender<HRequest>) {
-        // add to the hashmap
+    // register_handler registers the Sender with its respective path.
+    pub fn register_parser(&mut self, path: String, sender: Sender<Result<HRequest, Error>>) {
         self.path_map.register_sender(path, sender);
-
     }
 
-    // run 
+    // run starts all of the Parser workers. 
     pub fn run(&mut self) {
         for x in 0..self.count {
             let rx_cl = self.rx.clone();
             let path_map_cl = self.path_map.clone();
-
             let parser = Parser::new(rx_cl, path_map_cl);
-
-            // push worker onto parser pool list
             self.pool.push(parser);
         }
     }
