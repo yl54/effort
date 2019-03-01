@@ -2,12 +2,8 @@ use std::borrow::Borrow;
 use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
-use std::net::TcpStream;
-use std::result::Result;
 
-use http::header::{self, HeaderName, HeaderValue};
-use http::{Response, StatusCode};
-use httparse::{Request, Status, EMPTY_HEADER};
+use http::Response;
 
 use server::pool::http::HRequest;
 
@@ -35,7 +31,7 @@ fn debug_vec_str(lines: Vec<&str>) {
 }
 
 // write_response writes an http response to a stream.
-pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, hRequest: &mut HRequest) {
+pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, h_request: &mut HRequest) {
     // Get the parts of the http response.
     let (parts, body) = response.into_parts();
     let body: &[u8] = body.borrow();
@@ -55,9 +51,9 @@ pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, hRequest: &mut HRe
     text = format!("{}\r\n\n", text);
 
     // Write to stream.
-    hRequest.stream.write(text.as_bytes());
-    hRequest.stream.write(body);
+    h_request.stream.write(text.as_bytes());
+    h_request.stream.write(body);
 
     // Q: what is stream flush?
-    hRequest.stream.flush();
+    h_request.stream.flush();
 }

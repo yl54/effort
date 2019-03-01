@@ -71,7 +71,7 @@ pub fn write_response<T: Borrow<[u8]>>(response: Response<T>, mut stream: TcpStr
 
     // Flush to stream
     match stream.flush() {
-        Ok(s) => {
+        Ok(_s) => {
             debug!("Flushed to stream.");
         },
         Err(err) => { 

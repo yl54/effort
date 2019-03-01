@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc::Receiver;
 
 use std::error::{Error as Erroror};
-use std::io::{Error, ErrorKind};
+use std::io::Error;
 
 use server::pool::http::HRequest;
 use server::pool::responder::{ Callback, Handler, Responder };
@@ -35,7 +35,7 @@ impl ResponderPoolCoordinator {
 
     // run starts all of the ResponderPools.
     pub fn run(&mut self) {
-        for (path, mut pool) in &mut self.pools {
+        for (_path, mut pool) in &mut self.pools {
             pool.run();
         }
     }
@@ -73,7 +73,7 @@ impl ResponderPool {
 
     // run starts all of the workers.
     pub fn run(&mut self) {
-        for x in 0..self.count {
+        for _x in 0..self.count {
             let responder = Responder::new(self.rx.clone(), &self.h);
             self.pool.push(responder);
         }

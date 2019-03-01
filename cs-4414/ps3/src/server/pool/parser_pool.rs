@@ -1,10 +1,6 @@
-use std::collections::HashMap;
-use std::io::{BufRead, BufReader, Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
 use std::io::Error;
 
 use server::pool::http::{HRequest};
@@ -45,7 +41,7 @@ impl ParserPool {
 
     // run starts all of the Parser workers. 
     pub fn run(&mut self) {
-        for x in 0..self.count {
+        for _x in 0..self.count {
             let rx_cl = self.rx.clone();
             let path_map_cl = self.path_map.clone();
             let parser = Parser::new(rx_cl, path_map_cl);

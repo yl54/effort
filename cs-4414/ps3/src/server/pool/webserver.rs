@@ -1,21 +1,15 @@
-use std::collections::HashMap;
 use std::error::{Error as Erroror};
-use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::str;
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
 use std::io::Error;
-
-use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
 use server::pool::http::HRequest;
 use server::pool::responder::Callback;
 use server::pool::parser_pool::ParserPool;
 use server::pool::responder_pool::ResponderPoolCoordinator;
-use server::pool::utils;
 
 // Local server address and port
 const SERVER_ADDR: &str = "127.0.0.1";

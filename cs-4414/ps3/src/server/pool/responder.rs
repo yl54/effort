@@ -1,11 +1,10 @@
 use std::collections::HashMap;
-use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::Receiver;
 use std::thread;
 
 use std::error::{Error as Erroror};
-use std::io::{Error, ErrorKind};
+use std::io::Error;
 
 use server::pool::http::HRequest;
 
@@ -46,7 +45,7 @@ impl Responder {
         let h = handler.clone();
         let h = thread::spawn(move || {
             loop {
-                let mut result = rx.lock().unwrap().recv().unwrap();
+                let result = rx.lock().unwrap().recv().unwrap();
                 match result {
                     Err(err) => {
                         debug!("Couldn't get the proper result: {}", err.description());

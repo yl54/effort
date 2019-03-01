@@ -1,9 +1,7 @@
 // Http utility definitions. 
 use std::net::{TcpStream};
 
-use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
-
-use server::pool::responder::Callback;
+use httparse::Request;
 
 #[derive(Clone)]
 pub struct HHeader {

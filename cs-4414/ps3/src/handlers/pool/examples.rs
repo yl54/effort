@@ -1,7 +1,6 @@
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read, Write};
-use std::net::{TcpListener, TcpStream};
 
 use http::{Response, StatusCode};
 use regex::Regex;
@@ -13,34 +12,34 @@ use server::pool::utils;
 // This contains a few examples of responder handlers.
 
 // handle_default is an example default handler.
-pub fn handle_default(hRequest: &mut HRequest) {
+pub fn handle_default(h_request: &mut HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/original.html";
 
     // Write to stream.
-    write_response(html_file_path, hRequest);
+    write_response(html_file_path, h_request);
 }
 
 // handle_great gets the great page and shows it to the user.
-pub fn handle_great(hRequest: &mut HRequest) {
+pub fn handle_great(h_request: &mut HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/great.html";
 
     // Write to stream.
-    write_response(html_file_path, hRequest);
+    write_response(html_file_path, h_request);
 }
 
 // handle_trash gets the trash page and shows it to the user.
-pub fn handle_trash(hRequest: &mut HRequest) {
+pub fn handle_trash(h_request: &mut HRequest) {
     // Pick the page based off of the request.
     let html_file_path: &str = "files/trash.html";
 
     // Write to stream.
-    write_response(html_file_path, hRequest);
+    write_response(html_file_path, h_request);
 }
 
 // write_response gets the file from the path and writes it as a response.
-fn write_response(file_path: &str, hRequest: &mut HRequest) {
+fn write_response(file_path: &str, h_request: &mut HRequest) {
     // Create the full http response based off of the page
     let html_file_contents: String = utils::get_file_contents(file_path);
 
@@ -50,23 +49,23 @@ fn write_response(file_path: &str, hRequest: &mut HRequest) {
             .header("Content-Type", "text/html")
             .header("charset", "UTF-8")
             .body(html_file_contents.as_bytes()) {
-        Ok(res) => { utils::write_response(res, hRequest); },
+        Ok(res) => { utils::write_response(res, h_request); },
         Err(err) => { debug!("Failed to create response: {}", err.description()); }
     }
 }
 
 // handle_utility_date gets the utility date page and shows it to the user.
-pub fn handle_utility_date(hRequest: &mut HRequest) {
+pub fn handle_utility_date(h_request: &mut HRequest) {
     // Pick the page based off of the request.
     let path: &str = "files/utility/date.shtml";
 
     // Write to stream.
-    write_utility_response(path, hRequest);
+    write_utility_response(path, h_request);
 }
 
 // write_utility_stream handles paths through `utility`.
 // These return dynamic shtml pages, usually running some shell command.
-fn write_utility_response(path: &str, hRequest: &mut HRequest) {
+fn write_utility_response(path: &str, h_request: &mut HRequest) {
     // Get the file handle.
     let file = File::open(path).expect("file not found");
 
@@ -116,7 +115,7 @@ fn write_utility_response(path: &str, hRequest: &mut HRequest) {
                   .header("Content-Type", "text/html")
                   .header("charset", "UTF-8")
                   .body(output_content.as_bytes()) {
-        Ok(res) => { utils::write_response(res, hRequest); },
+        Ok(res) => { utils::write_response(res, h_request); },
         Err(err) => { debug!("Failed to create response: {}", err.description()); }
     }
 }

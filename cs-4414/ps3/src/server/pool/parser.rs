@@ -1,14 +1,13 @@
 use std::collections::HashMap;
-use std::io::{BufRead, BufReader, Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::io::Read;
+use std::net::TcpStream;
 use std::sync::{Arc, Mutex};
-use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
 use std::error::{Error as Erroror};
-use std::io::{Error, ErrorKind};
+use std::io::Error;
 
-use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
+use httparse::{Error as HttpError, Request, EMPTY_HEADER};
 
 use server::pool::http::{HRequest};
 use server::pool::utils;
@@ -31,7 +30,7 @@ impl Parser {
             // Start infinite loop
             loop {
                 // Get the lock for the reciever
-                let mut res_stream: Result<TcpStream, Error> = rx.lock().unwrap().recv().unwrap();
+                let res_stream: Result<TcpStream, Error> = rx.lock().unwrap().recv().unwrap();
                 let mut stream = match res_stream {
                     Err(err) => {
                         debug!("Couldn't read the stream: {}", err.description());
@@ -48,10 +47,10 @@ impl Parser {
                 let mut headers = [EMPTY_HEADER; utils::NUM_OF_HEADERS];
                 let mut req = Request::new(&mut headers[..]);
                 let status = match req.parse(buf.as_ref()) {
-                    Ok(s) => {
+                    Ok(_s) => {
                     },
                     Err(err) => {
-                        debug!("Failed parsing the bytes into a request.");
+                        debug!("Failed parsing the bytes into a request: {}", err.description());
                         continue;
                     },
                 };
