@@ -6,7 +6,6 @@ use std::sync::{Arc, Mutex};
 
 use httparse::{Request, EMPTY_HEADER};
 
-use server::simple::handlers;
 use server::simple::utils;
 
 pub type Callback = fn(TcpStream);
@@ -80,9 +79,7 @@ impl Scheduler {
                 let mut c = h.count.lock().unwrap();
                 *c += 1;
             },
-            None => {
-                handlers::handle_default(stream); 
-            },
+            None => {},
         }
     }
 }

@@ -11,7 +11,6 @@ use std::io::Error;
 
 use httparse::{Error as HttpError, Request, Status, EMPTY_HEADER};
 
-use server::pool::handlers;
 use server::pool::http::HRequest;
 use server::pool::responder::Callback;
 use server::pool::parser_pool::ParserPool;
@@ -46,7 +45,6 @@ impl Webserver {
         // Create the Webserver.
         Webserver {
             l: listener,
-            req_total: Arc::new(Mutex::new(0)),
             pp: ParserPool::new(parser_count, rx_arc),
             rpc: ResponderPoolCoordinator::new(),
             tx: tx,

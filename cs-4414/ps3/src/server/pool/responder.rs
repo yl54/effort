@@ -7,7 +7,6 @@ use std::thread;
 use std::error::{Error as Erroror};
 use std::io::{Error, ErrorKind};
 
-use server::pool::handlers;
 use server::pool::http::HRequest;
 
 /* 
@@ -53,7 +52,7 @@ impl Responder {
                         debug!("Couldn't get the proper result: {}", err.description());
                         continue;
                     },
-                    Ok(mut h_request) => { 
+                    Ok(mut h_request) => {
                         (h.handler)(&mut h_request); 
 
                         // TODO: Make handler return a Result<Response, Error>.

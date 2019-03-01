@@ -1,4 +1,5 @@
 pub mod gash;
+pub mod handlers;
 pub mod server;
 
 extern crate http;
@@ -7,7 +8,7 @@ extern crate httparse;
 extern crate log;
 extern crate regex;
 
-use server::pool::handlers;
+use handlers::pool::examples;
 use server::pool::webserver::Webserver;
 
 // use server::simple::handlers;
@@ -15,13 +16,13 @@ use server::pool::webserver::Webserver;
 
 fn main() {
     // Create a webserver.
-    let mut w = Webserver::new(2000);
+    let mut w = Webserver::new(1500);
 
     // Register some handlers.
-    w.register_handler("/".to_string(), handlers::handle_default, 10);
-    //w.register_handler("/great".to_string(), handlers::handle_great);
-    //w.register_handler("/trash".to_string(), handlers::handle_trash);
-    //w.register_handler("/utility/date".to_string(), //handlers::handle_utility_date);
+    w.register_handler("/".to_string(), examples::handle_default, 1500);
+    //w.register_handler("/great".to_string(), examples::handle_great);
+    //w.register_handler("/trash".to_string(), examples::handle_trash);
+    //w.register_handler("/utility/date".to_string(), //examples::handle_utility_date);
 
     // TODO: Add a favicon
 

@@ -1,4 +1,3 @@
-pub mod handlers;
 pub mod http;
 pub mod parser;
 pub mod parser_pool;
