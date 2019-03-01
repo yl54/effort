@@ -10,6 +10,9 @@ use server::simple::utils;
 
 pub type Callback = fn(TcpStream);
 
+/*
+    Handlers are wrappers for Callback functions. It includes relevant metadata.
+*/
 struct Handler {
     // path is the url path.
     path: String,
@@ -21,7 +24,9 @@ struct Handler {
     count: Arc<Mutex<u16>>,
 }
 
-// Schedulers get TCP connections and schedules handling each request.
+/*
+    Schedulers parse and respond to http requests.
+*/
 pub struct Scheduler {
     // handlers is a hashmap from the url path to handler functions.    
     handlers: HashMap<String, Handler>,

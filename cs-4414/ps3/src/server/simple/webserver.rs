@@ -9,20 +9,16 @@ use server::simple::scheduler::{Callback, Scheduler};
 const SERVER_ADDR: &str = "127.0.0.1";
 const SERVER_PORT: &str = "20001";
 
-// Webserver 
+/*
+    Webservers handle the process of parsing incoming requests and responding to the client.
+*/
 pub struct Webserver {
-    // l is the handle to the request listener.
     l: TcpListener,
-
-    // sc is a scheduler for each connection that comes to the Webserver.    
     sc: Scheduler,
-
-    // req_total is the count of how many total requests have been recieved.
     req_total: Arc<Mutex<u16>>,
 }
 
 impl Webserver {
-    // New function
     pub fn new() -> Webserver {
         // Create a tcp listener.
         // Bind the listener to some address. Use the local address for now.
