@@ -20,7 +20,10 @@ impl HHeader {
     }
 }
 
-// HRequest is a custom http request
+/*
+    HRequests are wrappers for Http Request information.
+    TODO: Make the fields private
+*/
 pub struct HRequest {
     pub method: Option<String>,
     pub path: Option<String>,
@@ -31,7 +34,7 @@ pub struct HRequest {
 }
 
 impl HRequest {
-    // convert
+    // convert takes an TcpStream and creates an HRequest.
     pub fn convert(req: Request, stream: TcpStream) -> HRequest {
         // Get method
         let method = match req.method {
@@ -61,44 +64,3 @@ impl HRequest {
         };
     }
 }
-
-pub struct HttpJob {
-    hRequest: HRequest,
-    callback: Callback,
-}
-
-impl HttpJob {
-    pub fn new(hr: HRequest, cb: Callback) -> HttpJob {
-        HttpJob {
-            hRequest: hr,
-            callback: cb,
-        }
-    }
-
-    pub fn execute(&mut self) -> u16 {
-        (self.callback)(&mut self.hRequest);
-        0
-    }
-}
-
-/*
-
-Scheduler:
-
-user -> 
-http request -> 
-webserver listens -> 
-scheduler::initial parse into http request -> 
-scheduler::figure out where to schedule in the queue, use a priority round robin -> 
-scheduler::pull requests from priority round robin and handle them ->
-http response ->
-user
-
-
-user 
-parser pool
-scheduler pool
-request handler pool
-user
-
-*/

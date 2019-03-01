@@ -1,5 +1,3 @@
-// This file contains a webserver.
-
 use std::collections::HashMap;
 use std::error::{Error as Erroror};
 use std::io::{Read, Write};
@@ -24,36 +22,35 @@ use server::pool::utils;
 const SERVER_ADDR: &str = "127.0.0.1";
 const SERVER_PORT: &str = "20001";
 
+/*
+    Webservers manage the workers that handle the process of parsing
+    incoming requests and responding to the client.
+*/
 pub struct Webserver {
     l: TcpListener,
     pp: ParserPool,
     rpc: ResponderPoolCoordinator,
-
-    // req_total is the count of how many total requests have been recieved.
-    req_total: Arc<Mutex<u16>>,
-
-    // initial sender to parser pool
     tx: Sender<Result<TcpStream, Error>>,
 }
 
 impl Webserver {
-    // New function
     pub fn new(parser_count: usize) -> Webserver {
         // Create a tcp listener.
-        // Bind the listener to some address. Use the local address for now.
         let full_address = format!("{}{}{}", SERVER_ADDR, ":", SERVER_PORT);
         let listener = TcpListener::bind(full_address).expect("Could not bind to address.");
 
-        // Create the channel from the initial listener to the parser pool
+        // Create the channel from the initial listener to the parser pool.
         let (tx, rx): (Sender<Result<TcpStream, Error>>, Receiver<Result<TcpStream, Error>>) = mpsc::channel();
         let rx_arc = Arc::new(Mutex::new(rx));
-        return Webserver {
+
+        // Create the Webserver.
+        Webserver {
             l: listener,
             req_total: Arc::new(Mutex::new(0)),
             pp: ParserPool::new(parser_count, rx_arc),
             rpc: ResponderPoolCoordinator::new(),
             tx: tx,
-        };
+        }
     }
 
     // register_handler registers a handler with a path
@@ -75,8 +72,8 @@ impl Webserver {
         self.rpc.run();
         self.pp.run();
 
+        // Start consuming http requests.
         for stream in self.l.incoming() {
-            // Send the input to parser pool
             self.tx.send(stream);
         }
     }
