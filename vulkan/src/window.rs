@@ -1,5 +1,7 @@
 // imports
 
+// check if window should be coupled with app or can be separate thing
+
 // window struct
     // window instance?
 
