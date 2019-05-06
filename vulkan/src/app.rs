@@ -5,6 +5,7 @@
 // cfg for debug mode
 
 // app struct + fields
+pub struct App {
     // vk instance?
 
     // vk physical device
@@ -12,8 +13,10 @@
     // vk pipelines?
 
     // vk command makers?
+}
 
 // app impl
+impl App {
     // q: do we want this or just have outside call these two separately
     // a: easier to call separately from outside
     // function to run the program, public
@@ -112,13 +115,18 @@
         // query for device queue family properties
 
     // function to run the main logic for the application
+}
 
 // app impl for drop trait
+impl Drop for App {
     // main drop function
+    fn drop(&mut self) {
         // delete debugger extension
 
         // delete vulkan instance
-
+    }
+    
     // function to delete vulkan instance
 
     // function to delete debugger extension
+}
