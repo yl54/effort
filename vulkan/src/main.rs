@@ -9,6 +9,10 @@ use winit::{
 };
 
 fn main() {
+    run_game();
+}
+
+fn run_game() {
     // Create an EventsLoop
     let mut events_loop = EventsLoop::new();
 
