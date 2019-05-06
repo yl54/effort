@@ -125,7 +125,7 @@ impl Drop for App {
 
         // delete vulkan instance
     }
-    
+
     // function to delete vulkan instance
 
     // function to delete debugger extension
