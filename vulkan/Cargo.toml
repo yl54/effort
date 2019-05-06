@@ -1,7 +1,9 @@
 [package]
 name = "vulkan"
 version = "0.1.0"
-authors = ["randyl <randyl@unity3d.com>"]
+authors = ["yl54"]
 edition = "2018"
 
 [dependencies]
+ash = "0.29.0"
+winit = "0.18.0"
