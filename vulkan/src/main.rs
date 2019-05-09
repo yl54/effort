@@ -4,20 +4,28 @@ pub mod window;
 use app::App;
 
 use winit::{
+    ControlFlow,
+    Event,
     EventsLoop,
-    Window
+    Window,
+    WindowEvent
 };
+use winit::dpi::LogicalSize;
 
 fn main() {
-    run_game();
+    run_app();
 }
 
-fn run_game() {
+fn run_app() {
     // Create an EventsLoop
     let mut events_loop = EventsLoop::new();
 
     // Create a window
     let window = Window::new(&events_loop);
+
+    // Create a triangle app instance
+    // q: where do i place this?
+    let app = App{};
 
     // Must keep in a loop to avoid just exiting immediately after 1 event
     loop {
@@ -26,21 +34,50 @@ fn run_game() {
         //    does it mean it moves the event into the closure? 
         //    does it mean ownership transfer?
         //    where does event come from?
+        // a: poll_events takes a function that references event struct
+        //    figure out how poll_events works
+        //    that function probably gets called and event is that thing
         events_loop.poll_events(|event| {
             // Check the type of event that has been detected
-                // event type 1
+            match event {
 
-                // event type 2
+                // Resized
+                Event::WindowEvent {
+                    event: WindowEvent::Resized(LogicalSize{width, height}),
+                    //q: what does "missing fields `window_id`, `event`" mean?
+                    // q: what is the point of ".."? 
+                    ..
+                } => {
+                    println!("Got a resized window event.")
+                },
 
-                // event type 3
+                // q: why do some events have fields that need to be with {}, and some can be wrapped around ()?
+                // KeyboardInput
+                Event::WindowEvent {
+                    // close requested
+                    event: WindowEvent::KeyboardInput{device_id, input},
+                    ..
+                } => {
+                    println!("Got a keyboard input window event.")
+                },
 
-                // no event occurred
-                    // could exit if choose to do so 
+                // Close Requested
+                Event::WindowEvent {
+                    // close requested
+                    event: WindowEvent::CloseRequested,
+                    ..
+                } => {
+                    println!("Got a close requested window event.")
+                },
+
+                // No event detected
+                _ => {
+                    ()
+                }
+            }
         });
     }
 
-    // Create a triangle app instance
-    let app = App{};
-
     // run the application
+    // q: where does this go?
 }
