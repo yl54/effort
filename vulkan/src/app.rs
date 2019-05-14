@@ -1,6 +1,14 @@
 // imports
 
+use std::ffi::CString;
+use std::ptr;
+
 // import ash
+use ash::vk::{
+    ApplicationInfo,
+    InstanceCreateInfo,
+    StructureType
+};
 
 // cfg for debug mode
 
@@ -30,24 +38,39 @@ impl App {
 
         // run loop with app logic
 
+    
     // function to init a vulkan instance
-        // Create the metadata struct thing
+        // Create the app info
 
-        // create an instance 
+        // create the instance create info struct
 
-    // function to create vulkan metadata 
-        // stype
-        // q: why is this needed if its always a specific struct?
+        // create an instance
 
-        // application name
+    // function to create vulkan metadata
+    fn get_vk_application_info_struct(&self) -> ApplicationInfo {
+        // Get the v1 version of Application Info
+        let app_info: ApplicationInfo = ApplicationInfo {
+            // Structure type enum
+            s_type: StructureType::APPLICATION_INFO,
 
-        // application version
+            // pointer to extensions
+            p_next: ptr::null(),
 
-        // engine name
+            // app name
+            p_application_name: CString::new("Application Name").expect("Failed to create engine name CString.").as_ptr(),
 
-        // engine version
+            // app version
+            application_version: 1,
 
-        // api version
+            // engine name
+            p_engine_name: CString::new("Engine Name").expect("Failed to create engine name CString.").as_ptr(),
+
+            // engine version
+            engine_version: 1,
+
+            // api verison
+            api_version: 1,
+        };
 
         // enabled extension count
 
@@ -61,6 +84,8 @@ impl App {
         // maybe this check belongs as one of the validation layers
 
         // return metadata struct
+        app_info
+    }
 
     // function to setup all of the extensions necessary
         // get a list of all of the extensions supported here
