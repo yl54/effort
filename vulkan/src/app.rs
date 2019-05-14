@@ -6,6 +6,7 @@ use std::ptr;
 // import ash
 use ash::vk::{
     ApplicationInfo,
+    InstanceCreateFlags,
     InstanceCreateInfo,
     StructureType
 };
@@ -41,10 +42,50 @@ impl App {
     
     // function to init a vulkan instance
         // Create the app info
+        // let vk_app_info = self.get_vk_application_info_struct();
 
         // create the instance create info struct
-
+        // let instance_create_info = self.get_vk_instance_create_info_struct(&vk_app_info);
+        
         // create an instance
+    
+
+    // function to get a create instance info struct
+    fn get_vk_instance_create_info_struct(&self, app_info: &ApplicationInfo) -> InstanceCreateInfo { 
+        // create instance create flags
+        let vk_instance_create_flags = InstanceCreateFlags::empty();
+
+        // create the instance create info struct
+        let vk_instance_create_info = InstanceCreateInfo {
+            // Structure type enum
+            s_type: StructureType::INSTANCE_CREATE_INFO,
+
+            // extensions?
+            p_next: ptr::null(),
+
+            // instance create flags
+            flags: vk_instance_create_flags,
+
+            // app info
+            p_application_info: app_info,
+
+            // enabled layer count
+            enabled_layer_count: 0,
+
+            // enabled layer count names
+            pp_enabled_layer_names: ptr::null(),
+
+            // enabled extension count
+            enabled_extension_count: 0,
+
+            // enabled extension names
+            pp_enabled_extension_names: ptr::null()
+        };
+
+        vk_instance_create_info
+    }
+
+
 
     // function to create vulkan metadata
     fn get_vk_application_info_struct(&self) -> ApplicationInfo {
