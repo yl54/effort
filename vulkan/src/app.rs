@@ -4,6 +4,14 @@ use std::ffi::CString;
 use std::ptr;
 
 // import ash
+use ash::{
+    Entry,
+    Instance
+};
+
+use ash::version::EntryV1_0;
+// use ash::version::InstanceV1_0;
+
 use ash::vk::{
     ApplicationInfo,
     InstanceCreateFlags,
@@ -41,17 +49,39 @@ impl App {
 
     
     // function to init a vulkan instance
+    pub fn create_vk_instance_struct(&self) -> Instance {
         // Create the app info
-        // let vk_app_info = self.get_vk_application_info_struct();
+        let vk_app_info = self.create_vk_application_info_struct();
 
         // create the instance create info struct
-        // let instance_create_info = self.get_vk_instance_create_info_struct(&vk_app_info);
+        let instance_create_info = self.create_vk_instance_create_info_struct(&vk_app_info);
         
+        // create an entry
+        let entry = match Entry::new() {
+            Ok(e) => e,
+            Err(err) => {
+                // TODO: Fail here, return the Err(), pick something to stop program from progressing maybe. Plenty of options
+                panic!("Failed to create instance: {}", err);
+            }
+        };
+
         // create an instance
+        let instance = unsafe { 
+            match entry.create_instance(&instance_create_info, None) {
+                Ok(i) => i,
+                Err(err) => {
+                    // TODO: Fail here, return the Err(), pick something to stop program from progressing maybe. Plenty of options
+                    panic!("Failed to create instance: {}", err);
+                }
+            }
+        };
+
+        instance
+    }
     
 
     // function to get a create instance info struct
-    fn get_vk_instance_create_info_struct(&self, app_info: &ApplicationInfo) -> InstanceCreateInfo { 
+    fn create_vk_instance_create_info_struct(&self, app_info: &ApplicationInfo) -> InstanceCreateInfo { 
         // create instance create flags
         let vk_instance_create_flags = InstanceCreateFlags::empty();
 
@@ -88,7 +118,7 @@ impl App {
 
 
     // function to create vulkan metadata
-    fn get_vk_application_info_struct(&self) -> ApplicationInfo {
+    fn create_vk_application_info_struct(&self) -> ApplicationInfo {
         // Get the v1 version of Application Info
         let app_info: ApplicationInfo = ApplicationInfo {
             // Structure type enum
