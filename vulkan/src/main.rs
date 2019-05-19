@@ -18,7 +18,7 @@ fn run_app() {
 
     // Create a triangle app instance
     // q: where do i place this?
-    let app = App {};
+    //let app = App {};
 
     window.main_loop();
 

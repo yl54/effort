@@ -10,7 +10,7 @@ use ash::{
 };
 
 use ash::version::EntryV1_0;
-// use ash::version::InstanceV1_0;
+use ash::version::InstanceV1_0;
 
 use ash::vk::{
     ApplicationInfo,
@@ -24,6 +24,7 @@ use ash::vk::{
 // app struct + fields
 pub struct App {
     // vk instance?
+    instance: Instance,
 
     // vk physical device
 
@@ -66,6 +67,7 @@ impl App {
         };
 
         // create an instance
+        // q: what is the parameter?
         let instance = unsafe { 
             match entry.create_instance(&instance_create_info, None) {
                 Ok(i) => i,
@@ -78,12 +80,25 @@ impl App {
 
         instance
     }
-    
 
     // function to get a create instance info struct
     fn create_vk_instance_create_info_struct(&self, app_info: &ApplicationInfo) -> InstanceCreateInfo { 
         // create instance create flags
         let vk_instance_create_flags = InstanceCreateFlags::empty();
+        
+        // enabled extension count
+        let mut enabled_extension_count = 0;
+
+        // enabled extension names
+        let mut enabled_extension_names: Vec<String> = vec![];
+
+        // number of layers to validate
+        let mut enabled_layer_count = 0;
+
+        // q: do i need to specify which validation layers i need as well?
+
+        // q: do i need to specify which extensions exist here as well?
+        // maybe this check belongs as one of the validation layers
 
         // create the instance create info struct
         let vk_instance_create_info = InstanceCreateInfo {
@@ -100,33 +115,20 @@ impl App {
             p_application_info: app_info,
 
             // enabled layer count
-            enabled_layer_count: 0,
+            enabled_layer_count: enabled_layer_count,
 
             // enabled layer count names
             pp_enabled_layer_names: ptr::null(),
 
             // enabled extension count
-            enabled_extension_count: 0,
+            enabled_extension_count: enabled_extension_count,
 
             // enabled extension names
             pp_enabled_extension_names: ptr::null()
         };
 
-        // enabled extension count
-
-        // enabled extension names
-
-        // number of layers to validate
-
-        // q: do i need to specify which validation layers i need as well?
-
-        // q: do i need to specify which extensions exist here as well?
-        // maybe this check belongs as one of the validation layers
-
         vk_instance_create_info
     }
-
-
 
     // function to create vulkan metadata
     fn create_vk_application_info_struct(&self) -> ApplicationInfo {
@@ -220,9 +222,9 @@ impl Drop for App {
         // delete debugger extension
 
         // delete vulkan instance
+        // q: what is the parameter?
+        unsafe {
+            self.instance.destroy_instance(None);
+        };
     }
-
-    // function to delete vulkan instance
-
-    // function to delete debugger extension
 }
