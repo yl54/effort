@@ -35,6 +35,8 @@ pub struct App {
 
 // app impl
 impl App {
+    // function to create a new App
+    
     // q: do we want this or just have outside call these two separately
     // a: easier to call separately from outside
     // function to run the program, public
