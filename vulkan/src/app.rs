@@ -112,6 +112,17 @@ impl App {
             pp_enabled_extension_names: ptr::null()
         };
 
+        // enabled extension count
+
+        // enabled extension names
+
+        // number of layers to validate
+
+        // q: do i need to specify which validation layers i need as well?
+
+        // q: do i need to specify which extensions exist here as well?
+        // maybe this check belongs as one of the validation layers
+
         vk_instance_create_info
     }
 
@@ -142,17 +153,6 @@ impl App {
             // api verison
             api_version: 1,
         };
-
-        // enabled extension count
-
-        // enabled extension names
-
-        // number of layers to validate
-
-        // q: do i need to specify which validation layers i need as well?
-
-        // q: do i need to specify which extensions exist here as well?
-        // maybe this check belongs as one of the validation layers
 
         // return metadata struct
         app_info
