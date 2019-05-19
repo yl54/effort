@@ -36,7 +36,7 @@ pub struct App {
 // app impl
 impl App {
     // function to create a new App
-    
+
     // q: do we want this or just have outside call these two separately
     // a: easier to call separately from outside
     // function to run the program, public
@@ -88,13 +88,11 @@ impl App {
         // create instance create flags
         let vk_instance_create_flags = InstanceCreateFlags::empty();
         
-        // enabled extension count
+        // Determine extensions available for use.
         let mut enabled_extension_count = 0;
-
-        // enabled extension names
         let mut enabled_extension_names: Vec<String> = vec![];
 
-        // number of layers to validate
+        // Determine layers needed.
         let mut enabled_layer_count = 0;
 
         // q: do i need to specify which validation layers i need as well?
@@ -104,28 +102,13 @@ impl App {
 
         // create the instance create info struct
         let vk_instance_create_info = InstanceCreateInfo {
-            // Structure type enum
             s_type: StructureType::INSTANCE_CREATE_INFO,
-
-            // extensions?
             p_next: ptr::null(),
-
-            // instance create flags
             flags: vk_instance_create_flags,
-
-            // app info
             p_application_info: app_info,
-
-            // enabled layer count
             enabled_layer_count: enabled_layer_count,
-
-            // enabled layer count names
             pp_enabled_layer_names: ptr::null(),
-
-            // enabled extension count
             enabled_extension_count: enabled_extension_count,
-
-            // enabled extension names
             pp_enabled_extension_names: ptr::null()
         };
 
@@ -134,31 +117,16 @@ impl App {
 
     // function to create vulkan metadata
     fn create_vk_application_info_struct(&self) -> ApplicationInfo {
-        // Get the v1 version of Application Info
         let app_info: ApplicationInfo = ApplicationInfo {
-            // Structure type enum
             s_type: StructureType::APPLICATION_INFO,
-
-            // pointer to extensions
             p_next: ptr::null(),
-
-            // app name
             p_application_name: CString::new("Application Name").expect("Failed to create engine name CString.").as_ptr(),
-
-            // app version
             application_version: 1,
-
-            // engine name
             p_engine_name: CString::new("Engine Name").expect("Failed to create engine name CString.").as_ptr(),
-
-            // engine version
             engine_version: 1,
-
-            // api verison
             api_version: 1,
         };
 
-        // return metadata struct
         app_info
     }
 
