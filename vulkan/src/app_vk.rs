@@ -1,4 +1,4 @@
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::ptr;
 
 // import ash
@@ -10,10 +10,13 @@ use ash::version::InstanceV1_0;
 use ash::vk::{ApplicationInfo, InstanceCreateFlags, InstanceCreateInfo, StructureType};
 
 // Vulkan standard validation layer
-const SERVER_ADDR: &str = "VK_LAYER_LUNARG_standard_validation";
+// q: does this need to be more dynamic or is this good enough?
+const VK_VALIDATION_LAYERS: [&'static str; 1] = ["VK_LAYER_LUNARG_standard_validation"];
 
 // function to init a vulkan instance
-pub fn create_vk_instance_struct(entry: &Entry) -> Instance {
+pub fn create_vk_instance_struct(entry: &Entry, is_validate: bool) -> Instance {
+    // Check validation layers
+
     // Create the app info
     let vk_app_info = create_vk_application_info_struct();
 
@@ -97,13 +100,53 @@ fn create_vk_application_info_struct() -> ApplicationInfo {
 // function to init validation layers
 
 // function to check which validation layers exist
+fn check_vk_validation_layers(entry: &Entry, is_validate: bool) -> bool {
+    // Check if validation is necessary or not
+    // Maybe this can be a global state thing idk
+    if !is_validate {
+        return true;
+    }
 
-    // get the list of validation layers to use
+    // get the list of validation layers that are available
+    // this is a vec
+    let layer_properties = unsafe {
+        match entry.enumerate_instance_layer_properties() {
+            Ok(_props) => _props,
+            Err(err) => {
+                // TODO: Fail here, return the Err(), pick something to stop program from progressing maybe. Plenty of options
+                panic!("Failed to get validation layers: {}", err);
+            }
+        }
+    };
 
-    // get the list of validation layers which are available by the (instance, device, )
+    // Check the length of the layer properties. 0 is bad so fail the program.
+    let amt = layer_properties.len();
+    if (amt <= 0) {
+        panic!("Number of validation layers loaded is {}", amt);
+    }
 
-    // check if the validation layers in to use are in the list 
+    // check if the validation layers in to use are in the list for loop
+    for layer_needed in VK_VALIDATION_LAYERS.iter() {
+        let mut is_layer_found = false;
 
+        // loop over each layer property
+        for layer_available in layer_properties.iter() {
+            // Convert the c char to String as opposed to String to c char. 
+            // c char has rules while String/vec holds arbitrary contents, so conversion is not trivial/guaranteed.             
+            
+            // check if the layer_name is the same as the layer 
+            
+        }
+        
+        // Check if the layer was found while looping
+        if !is_layer_found {
+            return false;
+        }
+    }
+
+
+    return true;
+}
 
 
 // function to implement debug callback
