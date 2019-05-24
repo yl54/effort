@@ -26,6 +26,9 @@ use crate::app_vk;
 
 // app struct + fields
 pub struct App {
+    // entry
+    entry: Entry,
+
     // vk instance?
     instance: Instance,
 
@@ -40,8 +43,19 @@ pub struct App {
 impl App {
     // function to create a new App
     pub fn new() -> App {
+        // create an entry
+        // q: can i use multiple of these, or can I only have one in play at any given moment?
+        // a: not sure, but stick with 1 for now.
+        let entry = match Entry::new() {
+            Ok(e) => e,
+            Err(err) => {
+                // TODO: Fail here, return the Err(), pick something to stop program from progressing maybe. Plenty of options
+                panic!("Failed to create instance: {}", err);
+            }
+        };
+
         // create a vk instance
-        let instance = app_vk::create_vk_instance_struct();
+        let instance = app_vk::create_vk_instance_struct(&entry);
 
         // check if the vk instance was properly created
 
@@ -50,6 +64,7 @@ impl App {
         // setup a physical device
 
         App {
+            entry: entry,
             instance: instance
         }
     }

@@ -9,22 +9,16 @@ use ash::version::InstanceV1_0;
 
 use ash::vk::{ApplicationInfo, InstanceCreateFlags, InstanceCreateInfo, StructureType};
 
+// Vulkan standard validation layer
+const SERVER_ADDR: &str = "VK_LAYER_LUNARG_standard_validation";
+
 // function to init a vulkan instance
-pub fn create_vk_instance_struct() -> Instance {
+pub fn create_vk_instance_struct(entry: &Entry) -> Instance {
     // Create the app info
     let vk_app_info = create_vk_application_info_struct();
 
     // create the instance create info struct
     let instance_create_info = create_vk_instance_create_info_struct(&vk_app_info);
-
-    // create an entry
-    let entry = match Entry::new() {
-        Ok(e) => e,
-        Err(err) => {
-            // TODO: Fail here, return the Err(), pick something to stop program from progressing maybe. Plenty of options
-            panic!("Failed to create instance: {}", err);
-        }
-    };
 
     // create an instance
     // q: what is the parameter?
@@ -101,11 +95,16 @@ fn create_vk_application_info_struct() -> ApplicationInfo {
 
 // q: does this need to be in a separate function?
 // function to init validation layers
-    // check which validation layers exist?
 
-    // get the list of validation layers to use?
+// function to check which validation layers exist
 
-    // use either debug mode or non debug mode
+    // get the list of validation layers to use
+
+    // get the list of validation layers which are available by the (instance, device, )
+
+    // check if the validation layers in to use are in the list 
+
+
 
 // function to implement debug callback
 // vulkan has in house attachments for debug messengers
