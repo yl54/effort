@@ -1,5 +1,6 @@
 pub mod app;
 pub mod app_vk;
+pub mod utils;
 pub mod window;
 
 use app::App;
