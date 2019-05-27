@@ -9,6 +9,8 @@ use ash::version::InstanceV1_0;
 
 use ash::vk::{ApplicationInfo, InstanceCreateFlags, InstanceCreateInfo, StructureType};
 
+use crate::utils;
+
 // Vulkan standard validation layer
 // q: does this need to be more dynamic or is this good enough?
 const VK_VALIDATION_LAYERS: [&'static str; 1] = ["VK_LAYER_LUNARG_standard_validation"];
@@ -109,6 +111,7 @@ fn check_vk_validation_layers(entry: &Entry, is_validate: bool) -> bool {
 
     // get the list of validation layers that are available
     // this is a vec
+    // q: will this need to be dropped as well?
     let layer_properties = unsafe {
         match entry.enumerate_instance_layer_properties() {
             Ok(_props) => _props,
@@ -130,12 +133,16 @@ fn check_vk_validation_layers(entry: &Entry, is_validate: bool) -> bool {
         let mut is_layer_found = false;
 
         // loop over each layer property
-        for layer_available in layer_properties.iter() {
+        for layer_found in layer_properties.iter() {
             // Convert the c char to String as opposed to String to c char. 
             // c char has rules while String/vec holds arbitrary contents, so conversion is not trivial/guaranteed.             
-            
-            // check if the layer_name is the same as the layer 
-            
+            let layer_found_name = utils::convert_c_string_to_String(&layer_found.layer_name);
+
+            // check if the layer_name is the same as the layer
+            if (layer_needed == &layer_found_name.as_str()) {
+                is_layer_found = true;
+                break;
+            }
         }
         
         // Check if the layer was found while looping
@@ -147,7 +154,6 @@ fn check_vk_validation_layers(entry: &Entry, is_validate: bool) -> bool {
 
     return true;
 }
-
 
 // function to implement debug callback
 // vulkan has in house attachments for debug messengers
