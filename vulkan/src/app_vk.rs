@@ -18,6 +18,10 @@ const VK_VALIDATION_LAYERS: [&'static str; 1] = ["VK_LAYER_LUNARG_standard_valid
 // function to init a vulkan instance
 pub fn create_vk_instance_struct(entry: &Entry, is_validate: bool) -> Instance {
     // Check validation layers
+    if (is_validate && !check_vk_validation_layers(entry, is_validate)) {
+        // TODO: Fail here, return the Err(), pick something to stop program from progressing maybe. Plenty of options
+        panic!("Failed vailidation layers check.");
+    }
 
     // Create the app info
     let vk_app_info = create_vk_application_info_struct();
