@@ -187,6 +187,48 @@ fn check_vk_validation_layers(entry: &Entry, is_validate: bool) -> bool {
     return true;
 }
 
+// function to setup debug utils
+// q: is this really the right way to call it
+fn setup_debug_utils(
+    entry: &ash::Entry,
+    instance: &ash::Instance,
+    is_validate: bool,
+) -> (
+    ash::extensions::ext::DebugUtils,
+    vk::DebugUtilsMessengerEXT,
+) {
+    let debug_utils_loader = ash::extensions::ext::DebugUtils::new(entry, instance);
+
+    if !is_validate {
+        (debug_utils_loader, ash::vk::DebugUtilsMessengerEXT::null())
+    } else {
+
+        let messenger_ci = vk::DebugUtilsMessengerCreateInfoEXT {
+            s_type: vk::StructureType::DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+            p_next: ptr::null(),
+            flags : vk::DebugUtilsMessengerCreateFlagsEXT::empty(),
+            message_severity :
+                vk::DebugUtilsMessageSeverityFlagsEXT::WARNING |
+                // vk::DebugUtilsMessageSeverityFlagsEXT::VERBOSE |
+                // vk::DebugUtilsMessageSeverityFlagsEXT::INFO |
+                vk::DebugUtilsMessageSeverityFlagsEXT::ERROR,
+            message_type:
+                vk::DebugUtilsMessageTypeFlagsEXT::GENERAL |
+                vk::DebugUtilsMessageTypeFlagsEXT::PERFORMANCE |
+                vk::DebugUtilsMessageTypeFlagsEXT::VALIDATION,
+            pfn_user_callback: Some(vulkan_debug_utils_callback),
+            p_user_data: ptr::null_mut(),
+        };
+
+        let utils_messenger = unsafe {
+            debug_utils_loader.create_debug_utils_messenger(&messenger_ci, None)
+                .expect("Debug Utils Callback")
+        };
+
+        (debug_utils_loader, utils_messenger)
+    }
+}
+
 // function to setup physical device
 // the physical device refers to a graphics card
     // call api to check for available devices
