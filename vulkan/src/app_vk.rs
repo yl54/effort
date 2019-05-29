@@ -1,4 +1,5 @@
 use std::ffi::{CStr, CString};
+use std::os::raw::c_void;
 use std::ptr;
 
 // import ash
@@ -6,7 +7,7 @@ use ash::{Entry, Instance};
 
 use ash::version::EntryV1_0;
 use ash::version::InstanceV1_0;
-
+use ash::vk;
 use ash::vk::{ApplicationInfo, InstanceCreateFlags, InstanceCreateInfo, StructureType};
 
 use crate::utils;
@@ -14,6 +15,33 @@ use crate::utils;
 // Vulkan standard validation layer
 // q: does this need to be more dynamic or is this good enough?
 const VK_VALIDATION_LAYERS: [&'static str; 1] = ["VK_LAYER_LUNARG_standard_validation"];
+
+// function to implement debug callback
+unsafe extern "system" fn vulkan_debug_utils_callback(
+    message_severity : vk::DebugUtilsMessageSeverityFlagsEXT,
+    message_type     : vk::DebugUtilsMessageTypeFlagsEXT,
+    p_callback_data  : *const vk::DebugUtilsMessengerCallbackDataEXT,
+    _p_user_data     : *mut c_void
+) -> vk::Bool32 {
+
+    let severity = match message_severity {
+        | vk::DebugUtilsMessageSeverityFlagsEXT::VERBOSE => "[Verbose]",
+        | vk::DebugUtilsMessageSeverityFlagsEXT::WARNING => "[Warning]",
+        | vk::DebugUtilsMessageSeverityFlagsEXT::ERROR   => "[Error]",
+        | vk::DebugUtilsMessageSeverityFlagsEXT::INFO    => "[Info]",
+        | _ => "[Unknown]",
+    };
+    let types = match message_type {
+        | vk::DebugUtilsMessageTypeFlagsEXT::GENERAL     => "[General]",
+        | vk::DebugUtilsMessageTypeFlagsEXT::PERFORMANCE => "[Performance]",
+        | vk::DebugUtilsMessageTypeFlagsEXT::VALIDATION  => "[Validation]",
+        | _ => "[Unknown]",
+    };
+    let message = CStr::from_ptr((*p_callback_data).p_message);
+    println!("[Debug]{}{}{:?}", severity, types, message);
+
+    vk::FALSE
+}
 
 // function to init a vulkan instance
 pub fn create_vk_instance_struct(entry: &Entry, is_validate: bool) -> Instance {
@@ -158,10 +186,6 @@ fn check_vk_validation_layers(entry: &Entry, is_validate: bool) -> bool {
 
     return true;
 }
-
-// function to implement debug callback
-// vulkan has in house attachments for debug messengers
-    // this is to output a message somewhere for debugging (i think)
 
 // function to setup physical device
 // the physical device refers to a graphics card
