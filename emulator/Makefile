@@ -1,7 +1,7 @@
 # ------ General Commands ------
 
 clean:
-	rm -f *.o emulator Makefile2
+	rm -f test/*.o *.o emulator Makefile2
 
 make-fmt:
 	sed $'s/	/\t/g' Makefile > Makefile2; cat Makefile2 > Makefile;
