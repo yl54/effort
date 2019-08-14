@@ -1,5 +1,7 @@
 clean:
-    rm -f *.o
+	rm -f *.o
+
+build: opcode.o
 
 opcode.o: opcode.c
-    gcc -Wall -g -std=c11 -c opcode.c
+	gcc -Wall -g -std=c11 -c opcode.c
