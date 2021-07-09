@@ -9,35 +9,38 @@
 	</head>
 	<body>
 		<script src="js/three.js"></script>
+				
 		<script>
+			import * as THREE from 'three';
+
 			// Javascript code goes here
 
 			// Create a scene
-			const scene = new THREE.Scene();
+			const scene = new Scene();
 
 			// Create a camera
 			// field of view: FOV is the extent of the scene that is seen on the display at any given moment. The value is in degrees.
 			// aspect ratio: describes ratio of width to height. most of the time, width/height will suffice
 			// near clipping: objects closer than this value will not be rendered
 			// far clipping: objects further than this value will not be rendered
-			const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+			const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 			// Create a renderer
 			// need to set the size of the renderer to render the app
-			const renderer = new THREE.WebGLRenderer();
+			const renderer = new WebGLRenderer();
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			document.body.appendChild(renderer.domElement);
 
 			// Create materials to render onto the screen
 
 			// geometry contains all the points (vertices) and fill (faces) of the cub
-			const geometry = new THREE.BoxGeometry();
+			const geometry = new BoxGeometry();
 
 			// A material is something that can be applied to an object/mesh to define the visual look of that object. 
-			const material = new THREE.MeshBasicMaterial( {color: 0x00ff00});
+			const material = new MeshBasicMaterial( {color: 0x00ff00});
 
 			// A mesh is an object that takes a geometry, and applies a material to it, which we then can insert to our scene, and move freely around.
-			const cube = new THREE.Mesh(geometry, material);
+			const cube = new Mesh(geometry, material);
 			scene.add(cube);
 
 			camera.position.z = 5;
