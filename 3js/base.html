@@ -35,6 +35,8 @@
 
 			// A material is something that can be applied to an object/mesh to define the visual look of that object. 
 			const material = new THREE.MeshBasicMaterial( {color: 0x00ff00});
+
+			// A mesh is an object that takes a geometry, and applies a material to it, which we then can insert to our scene, and move freely around.
 			const cube = new THREE.Mesh(geometry, material);
 			scene.add(cube);
 
@@ -42,7 +44,25 @@
 
 			// At this point, nothing is being rendered
 
+			// animate creates a render loop
+			// it causes the renderer to draw the scene every time the screen is refreshed
+			function animate() {
+				requestAnimationFrame(animate);
+				renderer.render(scene, camera);
 
+				// This will be logged continuously.
+				// If you leave the browser's tab, it will stop the loop and stop emitting the logs.
+				// The number of logs will not increase.
+				// console.log("animate() called");
+
+				// This code will rotate the box on each frame
+				// If this rotation does not exist, the green box will not move and just be presented as a green square.
+				cube.rotation.x += 0.01;
+				cube.rotation.y += 0.01;
+			}
+
+			// Calling animate will render the loop
+			animate();
 		</script>
 	</body>
 </html>
