@@ -50,7 +50,23 @@ const geometry = new BoxBufferGeometry(2, 2, 2);
 const material = new MeshBasicMaterial();
 
 // Create a mesh from the geometry and material
+const cube = new Mesh(geometry, material);
 
+// Add the mesh to the scene
+scene.add(cube);
 
+// Create a renderer
+const renderer = new WebGLRenderer();
 
+// Set the renderer width/height
+renderer.setSize(container.clientWidth, container.clientHeight);
 
+// Set the pixel ratio of the device's screen
+renderer.setPixelRatio(window.devicePixelRatio);
+
+// Add the <canvas> element to the page
+container.append(renderer.domElement);
+
+// Render the scene
+// This only creates a still image of the scene.
+renderer.render(scene, camera);
