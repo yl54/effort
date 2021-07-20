@@ -1,8 +1,8 @@
 // import
-import { PerspectiveCamera } from '../.././vendor/three/build/three.module.js';
+import { PerspectiveCamera } from '../../.././vendor/three/build/three.module.js';
 
 // create camera
-function createCamera(fov, nearClip, farClip) {
+function createCamera(nearClip, farClip) {
 	// Set the camera parameters
 	const fov = 35;
 	const aspect = 1;

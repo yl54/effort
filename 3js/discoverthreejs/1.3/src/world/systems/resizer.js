@@ -1,8 +1,8 @@
 // imports
 
 // create function
-class Resizer() {
-	constructor() {};
+class Resizer {
+	constructor() {}
 }
 
 // export

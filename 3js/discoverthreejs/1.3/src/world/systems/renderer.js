@@ -1,5 +1,5 @@
 // import
-import { WebGLRenderer } from '../.././vendor/three/build/three.module.js';
+import { WebGLRenderer } from '../../.././vendor/three/build/three.module.js';
 
 // class
 function createRenderer() {
