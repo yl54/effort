@@ -1,7 +1,14 @@
-# 1.2
+# 1.3
 
 ## Summary
-This is a basic example of a threejs application. This is not modular in any way. It is just an example to get the minimal necessary components onto the screen.
+This is a modularized example of a threejs application. The goal is to split up code in order to introduce organization and cleanliness.
+
+## Folder structure
+
+* src - holds the source code
+* src/world - holds code for the world app
+* src/world/components - components are anything that can be placed into the scene, like the cube, the camera, and the scene itself
+* src/world/systems - systems are things that operate on components or other systems
 
 ## Dependencies
 * A web browser that supports WebGL and runs javascript
