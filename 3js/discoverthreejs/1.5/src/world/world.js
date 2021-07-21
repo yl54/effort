@@ -30,10 +30,12 @@ class World {
 		const cube = createCube();
 		const light = createLights();
 
-		// TODO: Check if scene.add allows you to add:
-		// * any type of object 
-		// * explicitly-typed parameters
-		scene.add(cube, light);
+		// {object}.add allows you to add any classes that is based off of `Object3D` to the graph
+		scene.add(cube);
+
+		// This leads to a different outcome from scene.add(). 
+		// The positioning is based off of the local space of the cube.
+		cube.add(light);
 
 		const resizer = new Resizer(container, camera, renderer);
 	}

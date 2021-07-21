@@ -18,7 +18,13 @@ function createCube() {
 
 	cube.rotation.set(-0.5, -0.1, 0.8);
 
-	// return the mesh
+	// Alter cube shape to be:
+	// - wider
+	// - shorter
+	// - wider in depth
+	cube.scale.set(2, 0.3, 6)
+
+	// return the mesh. its not a cube anymore
 	return cube;
 }
 
