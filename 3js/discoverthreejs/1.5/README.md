@@ -1,15 +1,13 @@
-# 1.4
+# 1.5
 
 ## Summary
-This is a threejs application that introduces physically based rendering. Physcially-based rendering is a rendering technique that uses real-world physics to calculate the way surfaces react to light. Rather than manually tune values, physically-based rendering involves calculations off of known physics formulas.
+This is a threejs application that introduces Transformations, Coordinate Systems, and the Scene Graph.
 
 ## Terms
 
-* `Physcially-based rendering` is a rendering technique that uses real-world physics to calculate the way surfaces react to light. Rather than manually tune values, physically-based rendering involves calculations off of known physics formulas.
-* Physcially correct lighting is calculating how light fades with distance from a light source (attenuation) using real-world physics equations.
 
 ## Information
-* `MeshStandardMaterial` is a material that reacts to lighting. `MeshBasicMaterial` does not react to light.
+
 
 ## Folder structure
 
