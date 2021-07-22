@@ -4,9 +4,13 @@
 This is a threejs application that introduces responsive scenes.
 
 ## Terms
+* `jaggies` - The "lines" are not straight. This is because everything on screen is composed of square pixels.
+* `anti-aliasing` - A technique that smoothens lines out. 
 
 ## Information
-
+* Avoid scenes with lots of long, thin lines. They will either look jagged, or need lots of effort to straighten out with anti-aliasing.
+* There are big differences between desktop GPUs and mobile devices. For the web especially, mobile matters more. 
+* Event listeners are necessary to add responsiveness to user input. We listen for an event, and it will trigger a callback function.
 
 ## Folder structure
 
