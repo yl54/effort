@@ -27,11 +27,14 @@ class Resizer {
 			// set the window size if this event comes
 			setSize(container, camera, renderer);
 
-			// q: Why does this function need to be here? Without this, any resize is a black screen.
+			// this function is set outside to render the scene again. 
+			// this means that everytime the event listener is triggered,
+			// the renderer will render the scene again.
 			this.onResize();
 		});
 	}
 
+	// declare the function here so that it can be customized outside
 	onResize() {}
 }
 
