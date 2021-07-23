@@ -1,12 +1,16 @@
 # 1.7
 
 ## Summary
-This is a threejs application that introduces responsive scenes.
+This is a threejs application that introduces the illusion of movement into scenes.
 
 ## Terms
  
 
 ## Information
+* renderer.render outputs a still image. In order to display "movement", the renderer needs to continuously output still images to the screen, and extremely quickly.
+* 60 frames per second means 60 still images are produced and shown per second. This means calculations in between the frames being shown must occur within 16 milliseconds.
+* The `animation loop` is similar to the game loop.
+* Because every object needs to be updated within the inbetween time between frames, the updates to objects should be as minimal as possible for good performance.
 
 ## Folder structure
 

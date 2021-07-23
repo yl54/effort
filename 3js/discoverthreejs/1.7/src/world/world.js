@@ -3,6 +3,7 @@ import { createCamera } from './components/camera.js';
 import { createCube } from './components/cube.js';
 import { createLights } from './components/lights.js';
 import { createScene } from './components/scene.js';
+import { Loop } from './systems/loop.js';
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
 
@@ -16,6 +17,7 @@ import { Resizer } from './systems/resizer.js';
 let camera;
 let scene;
 let renderer;
+let loop;
 
 // World class
 class World {
@@ -25,26 +27,33 @@ class World {
 		camera = createCamera();
 		scene = createScene();
 		renderer = createRenderer();
+		loop = new Loop(camera, scene, renderer);
 		container.append(renderer.domElement);
 
 		const cube = createCube();
 		const light = createLights();
 
+		// add the cube to the update list for the loop
+		loop.updateables.push(cube);
+
 		// {object}.add allows you to add any classes that is based off of `Object3D` to the graph
 		scene.add(cube, light);
 
 		const resizer = new Resizer(container, camera, renderer);
-		
-		// customize the resize function
-		resizer.onResize = () => {
-			this.render();
-		};
 	}
 
 	// render function
 	// no parameters
 	render() {
 		renderer.render(scene, camera);
+	}
+
+	start() {
+		loop.start();
+	}
+
+	stop() {
+		loop.stop();
 	}
 }
 

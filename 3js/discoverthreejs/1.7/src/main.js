@@ -10,7 +10,7 @@ function main() {
 	const world = new World(container);
 
 	// Render the scene
-	world.render();
+	world.start();
 }
 
 // call the main function
