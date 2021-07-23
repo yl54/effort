@@ -11,6 +11,10 @@ This is a threejs application that introduces the illusion of movement into scen
 * 60 frames per second means 60 still images are produced and shown per second. This means calculations in between the frames being shown must occur within 16 milliseconds.
 * The `animation loop` is similar to the game loop.
 * Because every object needs to be updated within the inbetween time between frames, the updates to objects should be as minimal as possible for good performance.
+* Frame rates of films/tv shows are fixed. 24fps for films, 30fps for tv.
+* If the frame rate is not explicitly set, threejs will by default use the hardware defined refresh rate of the screen.
+    * A 60Hz refresh rate should mean 60fps, a 90Hz refresh rate should mean 90 fps, etc.
+* 60fps does not mean update loops are completed in `exactly` 16.66 ms. The delta is just very, very close to 16.66 ms, and that small difference is not noticable to humans. 
 
 ## Folder structure
 
