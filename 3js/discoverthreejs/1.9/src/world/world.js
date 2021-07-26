@@ -3,6 +3,7 @@ import { createCamera } from './components/camera.js';
 import { createCube } from './components/cube.js';
 import { createLights } from './components/lights.js';
 import { createScene } from './components/scene.js';
+import { createControls } from './systems/controls.js';
 import { Loop } from './systems/loop.js';
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
@@ -29,6 +30,8 @@ class World {
 		renderer = createRenderer();
 		loop = new Loop(camera, scene, renderer);
 		container.append(renderer.domElement);
+
+		const controls = createControls(camera, renderer.domElement);
 
 		const cube = createCube();
 		const light = createLights();

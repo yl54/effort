@@ -6,6 +6,8 @@ This is a threejs application that introduces a camera controls plugin, and plug
 ## Terms
 
 ## Information
+* `OrbitControls` is a camera controls plugin. It allows one to move the camera around and zoom.
+* q: Why are plugins underneath `examples`?
 
 ## Folder structure
 
