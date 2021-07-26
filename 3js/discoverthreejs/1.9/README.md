@@ -4,6 +4,7 @@
 This is a threejs application that introduces a camera controls plugin, and plugins in general.
 
 ## Terms
+* `Damping` - This is inertia within the controls. Rather than abruptly stopping, the controls will continue to move a little before stopping.
 
 ## Information
 * `OrbitControls` is a camera controls plugin. It allows one to move the camera around and zoom.
