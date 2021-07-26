@@ -9,6 +9,7 @@ This is a threejs application that introduces ambient lighting.
 ## Information
 * Real light involves light rays bouncing off of different surfaces infinitely and diminishing.
 	* This is impossible to calculate quickly by the CPU.
+* Ambient lights are the cheapest lighting solution.
 * Lights are expensive, don't want to add too many.
 * Common lighting techniques are
 	* A direct light + ambient lighting
@@ -16,6 +17,7 @@ This is a threejs application that introduces ambient lighting.
 	* No lights
 	* Image-based lighting - precalculate lighting and store that data in textures
 	* Ambient lighting
+* Hemisphere lighting is top is light and bottom is less light. It does not attempt to match physical accuracy. This is generally the pattern humans see.
 
 ## Folder structure
 

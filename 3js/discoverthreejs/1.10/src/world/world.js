@@ -34,13 +34,13 @@ class World {
 		const controls = createControls(camera, renderer.domElement);
 
 		const cube = createCube();
-		const light = createLights();
+		const { ambientLight, directLight }  = createLights();
 
 		// add the cube to the update list for the loop
 		loop.updateables.push(cube, controls);
 
 		// {object}.add allows you to add any classes that is based off of `Object3D` to the graph
-		scene.add(cube, light);
+		scene.add(ambientLight, directLight, cube);
 
 		const resizer = new Resizer(container, camera, renderer);
 	}

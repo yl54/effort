@@ -6,7 +6,7 @@ function createControls(camera, canvas) {
 	const controls = new OrbitControls(camera, canvas);
 
 	// Set the orbit point of the controls. The default is (0, 0, 0).
-	controls.target.set(1, 1, 1);
+	controls.target.set(0, 0, 0);
 
 	controls.enableDamping = true;
 
