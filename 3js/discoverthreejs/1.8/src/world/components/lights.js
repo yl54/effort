@@ -4,7 +4,7 @@ import { DirectionalLight } from '../../.././vendor/three/build/three.module.js'
 // class
 function createLights() {
 	// create the light
-	const light = new DirectionalLight('white', 8);
+	const light = new DirectionalLight('white', 4);
 
 	// position the light
 	// it will go:

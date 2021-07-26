@@ -18,6 +18,7 @@ This is a threejs application that introduces the texture mapping.
 * General q: Is it better for performance to have more, less complicated objects, or fewer, more complicated objects?
 * Flat surfaces are easier to work with than curved surfaces.
 * UV Mapping is a conversion (u, v) => (x, y, z).
+    * Only corners are mapped, everything else is inferred.
 
 ## Folder structure
 

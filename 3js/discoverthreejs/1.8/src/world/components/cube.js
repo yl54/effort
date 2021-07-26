@@ -1,5 +1,5 @@
 // import
-import { BoxBufferGeometry, MathUtils, Mesh, MeshStandardMaterial } from '../../.././vendor/three/build/three.module.js';
+import { BoxBufferGeometry, MathUtils, Mesh, MeshStandardMaterial, TextureLoader } from '../../.././vendor/three/build/three.module.js';
 
 const spec = {
 	color: 'purple',
@@ -11,13 +11,32 @@ const spec = {
 // If you want to slow down rotation, decrease the radians per second.
 const radiansPerSecond = MathUtils.degToRad(30);
 
+// create material function
+function createMaterial() {
+	// create a texture loader
+	const textureLoader = new TextureLoader();
+
+	const texture = textureLoader.load(
+		'/assets/textures/butters-pjs.webp',
+	);
+	
+	// create the material
+	// Either set color or map, but not both
+	const material = new MeshStandardMaterial({
+		map: texture,
+	});
+
+	// return the material
+	return material;
+}
+
 // create function
 function createCube() {
 	// Create a geometry
 	const geometry = new BoxBufferGeometry(2, 2, 2);
 
 	// Create a MeshStandardMaterial
-	const material = new MeshStandardMaterial(spec);
+	const material = createMaterial();
 
 	// Create a Mesh 
 	const cube = new Mesh(geometry, material);
