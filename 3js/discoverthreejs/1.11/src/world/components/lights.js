@@ -7,7 +7,7 @@ function createLights() {
 	const ambientLight = new HemisphereLight(
 		'white', 		     // bright sky color
 		'darkslategrey',     // dim ground color
-		2,                   // intensity
+		3,                   // intensity
 	);
 
 	// create the directional light

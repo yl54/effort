@@ -6,7 +6,8 @@ This is a threejs application that introduces more organization and new objects.
 ## Terms
 
 ## Information
-
+* A `Group` is an invisible object that manipulates hierarchy in the scene graph.
+* Objects can be either modified together or individually.
 
 ## Folder structure
 
