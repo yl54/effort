@@ -4,6 +4,7 @@
 This is a threejs application that introduces ways to use threejs' many provided geometries and more organization techniques.
 
 ## Terms
+* `Flat shading` - Adjacent faces (triangles) are no longer blended together.
 
 ## Information
 
