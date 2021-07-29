@@ -4,6 +4,7 @@ import { createCube } from './components/cube.js';
 import { createLights } from './components/lights.js';
 import { createMeshGroup } from './components/meshgroup.js';
 import { createScene } from './components/scene.js';
+import { Train } from './components/train/train.js';
 import { createControls } from './systems/controls.js';
 import { Loop } from './systems/loop.js';
 import { createRenderer } from './systems/renderer.js';
@@ -36,12 +37,13 @@ class World {
 
 		const meshGroup = createMeshGroup();
 		const { ambientLight, directLight }  = createLights();
+		const train = new Train();
 
 		// add the cube to the update list for the loop
-		loop.updateables.push(meshGroup, controls);
+		loop.updateables.push(train, controls);
 
 		// {object}.add allows you to add any classes that is based off of `Object3D` to the graph
-		scene.add(ambientLight, directLight, meshGroup);
+		scene.add(ambientLight, directLight, train);
 
 		const resizer = new Resizer(container, camera, renderer);
 	}

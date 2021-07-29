@@ -1,7 +1,7 @@
 // import
 import {
 	MeshStandardMaterial,
-} from '../../.././vendor/three/build/three.module.js';
+} from '../../../.././vendor/three/build/three.module.js';
 
 // create function
 function createMaterials() {
