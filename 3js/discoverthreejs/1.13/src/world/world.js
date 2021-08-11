@@ -49,9 +49,9 @@ class World {
 
 	// the init function has the asynchronous setup steps
 	async init() {
-		const { parrot } = await loadBirds();
+		const { parrot, flamingo, stork } = await loadBirds();
 
-		scene.add(parrot);
+		scene.add(parrot, flamingo, stork);
 	}
 
 	// render function
