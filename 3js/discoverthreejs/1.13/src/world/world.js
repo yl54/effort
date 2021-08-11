@@ -37,24 +37,21 @@ class World {
 
 		const meshGroup = createMeshGroup();
 		const { ambientLight, directLight }  = createLights();
-		const train = new Train();
 
 		// add the cube to the update list for the loop
-		loop.updateables.push(train, controls);
+		loop.updateables.push(controls);
 
 		// {object}.add allows you to add any classes that is based off of `Object3D` to the graph
-		scene.add(ambientLight, directLight, train);
+		scene.add(ambientLight, directLight);
 
 		const resizer = new Resizer(container, camera, renderer);
 	}
 
 	// the init function has the asynchronous setup steps
 	async init() {
+		const { parrot } = await loadBirds();
 
-	}
-
-	async asyncConstructor() {
-
+		scene.add(parrot);
 	}
 
 	// render function

@@ -8,8 +8,14 @@ async function loadBirds() {
 	const loader = new GLTFLoader();
 
 	// get the parrot data from the loader
+	const parrotData = await loader.loadAsync('/assets/models/Parrot.glb');
 
-	// 
+	console.log("loaded bird", parrotData);
+
+	const parrot = setupModel(parrotData);
+
+	return { parrot }
+
 }
 
 // export
