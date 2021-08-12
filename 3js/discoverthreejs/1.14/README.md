@@ -4,9 +4,16 @@
 This is a threejs application that introduces 3js animations.
 
 ## Terms
+* `Keyframe` - a drawing or shot that defines the starting and ending points of any smooth transition. These are called frames because their position in time is measured in frames on a strip of film or on a digital video editing timeline.
+* `Animation Clip` - a collection of a number of keyframes attached to a single object.
 
 ## Information
-
+* Simple animations can be done within a few frames, complex animations may need many frames to complete.
+* Keyframes consist of 3 pieces of info: time, property, and value.
+    * "at {some time} seconds, a {a property} is {a value}".
+* An animation needs minimum 2 keyframes.
+* As animation clips get more detailed, they tend to get tied to particular models.
+ 
 ## Folder structure
 
 * src - holds the source code
