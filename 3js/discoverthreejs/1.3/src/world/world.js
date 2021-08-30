@@ -1,7 +1,9 @@
 // imports
 import { createCamera } from './components/camera.js';
 import { createCube } from './components/cube.js';
+import { createRectangle } from './components/rectangle.js';
 import { createScene } from './components/scene.js';
+import { createSphere } from './components/sphere.js';
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
 
@@ -28,6 +30,20 @@ class World {
 
 		const cube = createCube();
 		scene.add(cube);
+
+		// Challenge Medium: 2
+		// add a second cube and move it
+		const cube2 = createCube();
+		scene.add(cube2);
+		cube2.position.set(-2, -2, -2);
+
+		console.log(scene);
+
+		const rectangle = createRectangle();
+		// scene.add(rectangle);
+
+		// const sphere = createSphere();
+		// scene.add(sphere);
 
 		const resizer = new Resizer(container, camera, renderer);
 	}
