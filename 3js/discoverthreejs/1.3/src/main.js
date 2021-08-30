@@ -25,6 +25,8 @@ function main() {
 		// Show the elements once clicked
 		heading.style.visibility = "visible";
 		container.style.visibility = "visible";
+
+		// Disable the button and hide it
 		button.style.visibility = "hidden";
 		button.style.disabled = true;
 	});
