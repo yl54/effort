@@ -13,7 +13,7 @@ function main() {
 	const world = new World(container);
 
 	// Challenge Hard: 1
-	// Add a button trigger the rendering of the scene
+	// Add a button to trigger rendering the scene
 	const button = document.querySelector('#render-button');
 
 	button.addEventListener('click', () => {
