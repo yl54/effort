@@ -1,8 +1,10 @@
 // import
 import { BoxBufferGeometry, Mesh, MeshStandardMaterial } from '../../.././vendor/three/build/three.module.js';
 
+// Challenge Easy: 1
+// Change the color of the material
 const spec = {
-	color: 'purple',
+	color: 'aqua',
 }
 
 // create function
