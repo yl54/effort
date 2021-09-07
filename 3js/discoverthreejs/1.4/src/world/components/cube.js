@@ -1,5 +1,5 @@
 // import
-import { BoxBufferGeometry, Mesh, MeshStandardMaterial } from '../../.././vendor/three/build/three.module.js';
+import { BoxBufferGeometry, Mesh, MeshPhongMaterial, MeshStandardMaterial } from '../../.././vendor/three/build/three.module.js';
 
 // Challenge Easy: 1
 // Change the color of the material
@@ -14,6 +14,10 @@ function createCube() {
 
 	// Create a MeshStandardMaterial
 	const material = new MeshStandardMaterial(spec);
+
+	// Challenge Medium: 2
+	// Use a different material
+	// const material = new MeshPhongMaterial(spec);
 
 	// Create a Mesh 
 	const cube = new Mesh(geometry, material);
