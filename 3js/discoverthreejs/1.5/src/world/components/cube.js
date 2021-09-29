@@ -24,6 +24,12 @@ function createCube() {
 	// - wider in depth
 	cube.scale.set(2, 0.3, 6)
 
+	// Challenge Easy: 1
+	// Change the position, rotation, scale
+	// cube.rotation.set(-3, -0.4, 5);
+	// cube.scale.set(0.5, 0.8, 0.7);
+	// cube.position.set(1, 0, 2);
+
 	// return the mesh. its not a cube anymore
 	return cube;
 }

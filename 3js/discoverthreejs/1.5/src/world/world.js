@@ -30,6 +30,12 @@ class World {
 		const cube = createCube();
 		const light = createLights();
 
+		// Challenge Medium: 2
+		// Make a second mesh and add it as a child of the first mesh
+		const cube2 = createCube();
+		cube.add(cube2);
+		cube2.position.set(2, 2, 2);
+
 		// {object}.add allows you to add any classes that is based off of `Object3D` to the graph
 		scene.add(cube);
 

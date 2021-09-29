@@ -23,6 +23,10 @@ class Resizer {
 		setSize(container, camera, renderer);
 
 		// add an event listener
+		// Challenge Easy: 3
+		// Comment out the code for resizing in World.js and compare the difference when you resize the window
+		// on: very laggy, box moves depending on the resized window
+		// off: not laggy, box stays in place 
 		window.addEventListener('resize', () => {
 			// set the window size if this event comes
 			setSize(container, camera, renderer);
